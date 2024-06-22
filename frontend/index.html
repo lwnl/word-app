@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h2>Add New Words</h2>
+            <input type="text" id="chinese" placeholder="Chinese">
+            <input type="text" id="german" placeholder="Deutsch">
+            <select id="category">
+                <option value="tech">Technical Words</option>
+                <option value="daily">Daily Words</option>
+            </select>
+            <button onclick="addWord()">Add</button>
+        </div>
+
+        <h2>Search Words</h2>
+        <input type="text" id="searchQuery" placeholder="Search by Chinese or German">
+        <button onclick="searchWords()">Search</button>
+        <ol id="searchResults"></ol>
+        
+        <h2>Random Word List</h2>
+        <form onsubmit="handleFormSubmit(event)">
+            <span>How many words from <span id="numberOfWords">0</span> you want to try?</span>
+            <input id="quantity" type="text" placeholder="quantity">
+            <button type="submit">Get Random Words</button>
+        </form>
+        <button id="btnChinese" onclick="toggleChinese()">Show Chinese</button>
+        <button id="btnGerman" onclick="toggleGerman()">Show Deutsch</button>
+        <ol id="wordList"></ol>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
