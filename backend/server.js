@@ -5,6 +5,7 @@ const app = express();
 const PORT = 3000;
 const db = require('./database.js'); // Import functions from database.js
 
+// 
 app.use(express.json());
 app.use(cors());
 
