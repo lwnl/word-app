@@ -26,7 +26,7 @@ app.post('/api/words', async (req, res) => {
     console.error(err.message);
     res.status(500).json({ error: err.message });
   }
-});
+}); 
 
 // Get all words (call function from database.js)
 app.get('/api/words', async (req, res) => {
@@ -39,7 +39,7 @@ app.get('/api/words', async (req, res) => {
   }
 });
 
-// Search words by Chinese or German
+// Search words by Chinese or German 
 app.get('/api/words/search', async (req, res) => {
   try {
     const query = req.query.query;

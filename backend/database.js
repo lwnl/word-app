@@ -10,7 +10,7 @@ const db = new sqlite3.Database(path.resolve(__dirname, 'words.db'), (err) => {
   }
 });
 
-// create tables in the database
+// create word table if not yet exists
 function createTables() {
   return new Promise((resolve, reject) => {
     db.serialize(() => {
