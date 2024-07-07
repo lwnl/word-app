@@ -1,7 +1,7 @@
 // Global variables
 let words = []; // Array to store words fetched from the server
 let showChineseWords = true;
-let showGermanWords = true;
+let showGermanWords = false;
 let shuffledWords = []; // Array to store shuffled words
 let numberOfWords = document.getElementById('numberOfWords');
 
@@ -20,6 +20,17 @@ function fetchWords() {
             words = data;
             numberOfWords.innerHTML = words.length;
             // Optionally display words initially if needed
+            // Separate words into techWords and dailyWords arrays
+            const techWords = data.filter(word => word.categoryAdd === 'tech');
+            const dailyWords = data.filter(word => word.categoryAdd === 'daily');
+
+            // Optionally display total number of words
+            numberOfWords.innerHTML = data.length;
+
+            // Optionally display or use techWords and dailyWords arrays as needed
+            console.log('Tech Words:', techWords);
+            console.log('Daily Words:', dailyWords);
+            console.log('all Words:', words);
         })
 
         .catch(error => console.error('Error fetching words:', error));
@@ -28,26 +39,36 @@ function fetchWords() {
 async function addWord() {
     const chinese = document.getElementById('chinese').value;
     const german = document.getElementById('german').value;
-    const category = document.getElementById('category').value;
-
-    const response = await fetch('http://localhost:3000/api/words', {
+    const categoryAdd = document.getElementById('categoryAdd').value; // 假设有一个下拉菜单或输入框
+  
+    if (!chinese || !german || !categoryAdd) {
+      alert('Missing required fields');
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:3000/api/words', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ chinese, german, category })
-    });
-
-    if (response.ok) {
-        alert('Word added successfully!');
-        // Optionally clear the input fields
-        document.getElementById('chinese').value = '';
-        document.getElementById('german').value = '';
-        document.getElementById('category').value = 'tech';
-    } else {
-        alert('Failed to add word');
+        body: JSON.stringify({ chinese, german, categoryAdd }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        alert('Adding successfully');
+        fetchWords(); // 更新词汇列表
+      } else {
+        const errorData = await response.json();
+        console.error('Error adding word:', errorData.error);
+        alert('Error adding word: ' + errorData.error);
+      }
+    } catch (error) {
+      console.error('Error adding word:', error);
+      alert('Error adding word: ' + error.message);
     }
-}
+  }
 
 function displayWords(wordsToDisplay) {
     // Display words in the UI
@@ -105,7 +126,12 @@ function handleFormSubmit(event) {
         return;
     }
 
-    // Shuffle words array and take 'quantity' number of elements
+    // Shuffle words array and take 'quantity' number of elements 
+    /* 	排序效果：
+    在 .sort() 方法中，比较函数返回的值决定了数组元素的相对顺序。负值会导致第一个参数在排序后排在第二个参数之前，而正值则相反。如果比较函数返回的是随机数，那么每次排序都会根据不同的随机数进行比较，从而达到打乱数组顺序的效果。
+    避免偏向性：
+    选择在 [-0.5, 0.5) 范围内的随机数，是为了尽可能地避免排序的偏向性。这个范围的选择使得每个元素在排序过程中被重新定位的概率大致相等，从而实现了真正的随机排序。 */
+
     shuffledWords = [...words].sort(() => 0.5 - Math.random()).slice(0, quantity);
 
     // Display shuffled words list
@@ -113,7 +139,7 @@ function handleFormSubmit(event) {
 }
 
 async function searchWords() {
-    const query = document.getElementById('searchQuery').value.trim(); 
+    const query = document.getElementById('searchQuery').value.trim();
 
     if (!query) {
         // if query is empty, clear the search results

@@ -18,7 +18,8 @@ function createTables() {
         CREATE TABLE IF NOT EXISTS words (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           chinese TEXT NOT NULL,
-          german TEXT NOT NULL
+          german TEXT NOT NULL,
+          categoryAdd TEXT NOT NULL
         )
       `, (err) => {
         if (err) {
@@ -26,46 +27,26 @@ function createTables() {
           reject(err);
           return;
         }
+        resolve();
       });
-
-      resolve();
     });
   });
 }
 
 // add a new word to the database
-function addWord(chinese, german, category) {
+function addWord(chinese, german, categoryAdd) {
   return new Promise((resolve, reject) => {
-    if (!chinese || !german || !category) {
+    if (!chinese || !german || !categoryAdd) {
       reject(new Error('Missing required fields'));
       return;
     }
 
-    db.run('INSERT INTO words (chinese, german) VALUES (?, ?)', [chinese, german], function (err) {
+    db.run('INSERT INTO words (chinese, german, categoryAdd) VALUES (?, ?, ?)', [chinese, german, categoryAdd], function (err) {
       if (err) {
         reject(err);
         return;
       }
-
-      const wordId = this.lastID;
-
-      let table;
-      if (category === 'tech') {
-        table = 'techWords';
-      } else if (category === 'daily') {
-        table = 'dailyWords';
-      } else {
-        reject(new Error('Invalid category'));
-        return;
-      }
-
-      db.run(`INSERT INTO ${table} (word_id) VALUES (?)`, [wordId], function (err) {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve({ id: wordId });
-      });
+      resolve({ id: this.lastID });
     });
   });
 }

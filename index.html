@@ -12,7 +12,7 @@
             <h2>Add New Words</h2>
             <input type="text" id="chinese" placeholder="Chinese">
             <input type="text" id="german" placeholder="Deutsch">
-            <select id="category">
+            <select id="categoryAdd">
                 <option value="tech">Technical Words</option>
                 <option value="daily">Daily Words</option>
             </select>
@@ -26,11 +26,16 @@
         
         <h2>Random Word List</h2>
         <form onsubmit="handleFormSubmit(event)">
+            <select id="categoryAdd">
+                <option value="all">All Words</option>
+                <option value="tech">Technical Words</option>
+                <option value="daily">Daily Words</option>
+            </select>
             <span>How many words from <span id="numberOfWords">0</span> you want to try?</span>
             <input id="quantity" type="text" placeholder="quantity">
             <button type="submit">Get Random Words</button>
         </form>
-        <button id="btnChinese" onclick="toggleChinese()">Show Chinese</button>
+        <button id="btnChinese" onclick="toggleChinese()">Hide Chinese</button>
         <button id="btnGerman" onclick="toggleGerman()">Show Deutsch</button>
         <ol id="wordList"></ol>
     </div>
