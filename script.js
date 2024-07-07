@@ -12,6 +12,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     fetchWords();
 });
 
+// add event listener categoryShow, so that when the category is changed, the words list will be updated
+const categoryShow = document.getElementById('categoryShow');
+categoryShow.addEventListener('change', (event) => {
+    const selectedCategory = event.target.value;
+
+    if (selectedCategory === 'tech') {
+        words = techWords;
+    } else if (selectedCategory === 'daily') {
+        words = dailyWords;
+    } else {
+        words = words; 
+    }
+    numberOfWords.innerHTML = words.length;
+});
 
 
 function fetchWords() {
@@ -41,36 +55,36 @@ function fetchWords() {
 async function addWord() {
     const chinese = document.getElementById('chinese').value;
     const german = document.getElementById('german').value;
-    const categoryAdd = document.getElementById('categoryAdd').value; 
-  
+    const categoryAdd = document.getElementById('categoryAdd').value;
+
     if (!chinese || !german || !categoryAdd) {
-      alert('Missing required fields');
-      return;
+        alert('Missing required fields');
+        return;
     }
-  
+
     try {
-      const response = await fetch('http://localhost:3000/api/words', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ chinese, german, categoryAdd }),
-      });
-  
-      if (response.ok) {
-        const data = await response.json();
-        alert('Adding successfully');
-        fetchWords(); // Fetch words again to update word list
-      } else {
-        const errorData = await response.json();
-        console.error('Error adding word:', errorData.error);
-        alert('Error adding word: ' + errorData.error);
-      }
+        const response = await fetch('http://localhost:3000/api/words', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ chinese, german, categoryAdd }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('Adding successfully');
+            fetchWords(); // Fetch words again to update word list
+        } else {
+            const errorData = await response.json();
+            console.error('Error adding word:', errorData.error);
+            alert('Error adding word: ' + errorData.error);
+        }
     } catch (error) {
-      console.error('Error adding word:', error);
-      alert('Error adding word: ' + error.message);
+        console.error('Error adding word:', error);
+        alert('Error adding word: ' + error.message);
     }
-  }
+}
 
 function displayWords(wordsToDisplay) {
     // Display words in the UI
@@ -106,15 +120,14 @@ function toggleGerman() {
     displayWords(shuffledWords); // Display shuffled words list
 }
 
+
+
 function handleFormSubmit(event) {
 
     // Handle form submission to get random words
     event.preventDefault();
     const quantityInput = document.getElementById('quantity');
     const quantity = parseInt(quantityInput.value);
-
-
-
 
     // Validate quantity input
     if (isNaN(quantity)) {
@@ -182,17 +195,17 @@ function displaySearchResults(words) {
     });
 }
 
-async function deleteWord(id, buttonElement) {
-    if (confirm('Are you sure you want to delete this word?')) {
-        const response = await fetch(`http://localhost:3000/api/words/${id}`, { method: 'DELETE' });
-
-        if (response.ok) {
-            alert('Word deleted successfully!');
-            // Remove the word from the list without refreshing
-            const listItem = buttonElement.parentElement;
-            listItem.remove();
-        } else {
-            alert('Failed to delete word');
+    function deleteWord(id) {
+            fetch(`http://localhost:3000/api/words/${id}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (response.status === 204) {
+                    // Word deleted successfully, fetch updated list
+                    fetchWords();
+                } else {
+                    console.error('Failed to delete word');
+                }
+            })
+            .catch(error => console.error('Error deleting word:', error));
         }
-    }
-}
