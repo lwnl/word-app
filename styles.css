@@ -28,3 +28,7 @@ button {
   line-height: 1.5;
   padding: 5px 0;
 }
+
+#searchQuery {
+  width: 25ch;
+}

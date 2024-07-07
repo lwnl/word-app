@@ -1,9 +1,12 @@
 // Global variables
 let words = []; // Array to store words fetched from the server
+let techWords = []; // Array to store technical words
+let dailyWords = []; // Array to store daily words
 let showChineseWords = true;
 let showGermanWords = false;
 let shuffledWords = []; // Array to store shuffled words
 let numberOfWords = document.getElementById('numberOfWords');
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
     fetchWords();
@@ -18,14 +21,13 @@ function fetchWords() {
         .then(response => response.json())
         .then(data => {
             words = data;
-            numberOfWords.innerHTML = words.length;
             // Optionally display words initially if needed
             // Separate words into techWords and dailyWords arrays
-            const techWords = data.filter(word => word.categoryAdd === 'tech');
-            const dailyWords = data.filter(word => word.categoryAdd === 'daily');
+            techWords = data.filter(word => word.categoryAdd === 'tech');
+            dailyWords = data.filter(word => word.categoryAdd === 'daily');
 
             // Optionally display total number of words
-            numberOfWords.innerHTML = data.length;
+            numberOfWords.innerHTML = words.length;
 
             // Optionally display or use techWords and dailyWords arrays as needed
             console.log('Tech Words:', techWords);
@@ -39,7 +41,7 @@ function fetchWords() {
 async function addWord() {
     const chinese = document.getElementById('chinese').value;
     const german = document.getElementById('german').value;
-    const categoryAdd = document.getElementById('categoryAdd').value; // 假设有一个下拉菜单或输入框
+    const categoryAdd = document.getElementById('categoryAdd').value; 
   
     if (!chinese || !german || !categoryAdd) {
       alert('Missing required fields');
@@ -58,7 +60,7 @@ async function addWord() {
       if (response.ok) {
         const data = await response.json();
         alert('Adding successfully');
-        fetchWords(); // 更新词汇列表
+        fetchWords(); // Fetch words again to update word list
       } else {
         const errorData = await response.json();
         console.error('Error adding word:', errorData.error);
@@ -111,6 +113,10 @@ function handleFormSubmit(event) {
     const quantityInput = document.getElementById('quantity');
     const quantity = parseInt(quantityInput.value);
 
+
+
+
+    // Validate quantity input
     if (isNaN(quantity)) {
         alert('Please enter a valid number.');
         return;
