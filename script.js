@@ -102,6 +102,11 @@ function displayWords(wordsToDisplay) {
         } else {
             return;
         }
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteWord(word.id);
+        li.appendChild(deleteButton);
+
         wordList.appendChild(li);
     });
 }
@@ -195,17 +200,17 @@ function displaySearchResults(words) {
     });
 }
 
-    function deleteWord(id) {
-            fetch(`http://localhost:3000/api/words/${id}`, {
-                method: 'DELETE',
-            })
-            .then(response => {
-                if (response.status === 204) {
-                    // Word deleted successfully, fetch updated list
-                    fetchWords();
-                } else {
-                    console.error('Failed to delete word');
-                }
-            })
-            .catch(error => console.error('Error deleting word:', error));
+function deleteWord(id) {
+    fetch(`http://localhost:3000/api/words/${id}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.status === 204) {
+            // Word deleted successfully, fetch updated list
+            fetchWords();
+        } else {
+            console.error('Failed to delete word');
         }
+    })
+    .catch(error => console.error('Error deleting word:', error));
+}
