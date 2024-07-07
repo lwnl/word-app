@@ -104,7 +104,9 @@ function displayWords(wordsToDisplay) {
         }
         const deleteButton = document.createElement('button');
         deleteButton.textContent = 'Delete';
-        deleteButton.onclick = () => deleteWord(word.id, li); // Pass li element to deleteWord function
+        deleteButton.onclick = () => {
+            deleteWord(word.id, li);
+        };
         li.appendChild(deleteButton);
 
         wordList.appendChild(li);
@@ -201,17 +203,20 @@ function displaySearchResults(words) {
 }
 
 function deleteWord(id, liElement) {
-    fetch(`http://localhost:3000/api/words/${id}`, {
-        method: 'DELETE',
-    })
-        .then(response => {
-            if (response.status === 204) {
-                console.log('Deleting word with ID:', id)
-                // Word deleted successfully, remove the liElement from the DOM
-                liElement.parentNode.removeChild(liElement);
-            } else {
-                console.error('Failed to delete word');
-            }
-        })
-        .catch(error => console.error('Error deleting word:', error));
+    liElement.parentNode.removeChild(liElement);
+    // fetch(`http://localhost:3000/api/words/${id}`, {
+    //     method: 'DELETE',
+    // })
+    //     .then(response => {
+    //         if (response.status === 204) {
+    //             console.log('Deleting word with ID:', id)
+    //             // Word deleted successfully, remove the liElement from the DOM
+    //             // liElement.parentNode.removeChild(liElement);
+    //             // shuffledWords = shuffledWords.filter(word => word.id !== id);
+    //             // displayWords(shuffledWords);
+    //         } else {
+    //             console.error('Failed to delete word');
+    //         }
+    //     })
+    //     .catch(error => console.error('Error deleting word:', error));
 }
