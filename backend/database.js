@@ -1,9 +1,8 @@
-const { MongoClient } = require('mongodb');
-const ObjectId = require('mongodb').ObjectId; // 用于处理 ObjectId
+const { MongoClient, ObjectId } = require('mongodb');
 
 const uri = "mongodb://localhost:27017";
 const dbName = "word-db";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 async function connectToDb() {
   try {
@@ -47,9 +46,9 @@ async function deleteWord(id) {
   return result.deletedCount === 1;
 }
 
-// module.exports = {
-//   addWord,
-//   getAllWords,
-//   searchWords,
-//   deleteWord
-// };
+module.exports = {
+  addWord,
+  getAllWords,
+  searchWords,
+  deleteWord
+};

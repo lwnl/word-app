@@ -1,3 +1,6 @@
+/* 
+ */
+
 // Global variables
 let words = []; // Array to store words fetched from the server
 let techWords = []; // Array to store technical words
@@ -74,6 +77,16 @@ async function addWord() {
         if (response.ok) {
             const data = await response.json();
             alert('Adding successfully');
+
+            // 创建一个包含所有单词数据和返回的id的对象
+            const newWord = {
+                _id: data.id,
+                chinese,
+                german,
+                categoryAdd
+            };
+
+
             fetchWords(); // Fetch words again to update word list
         } else {
             const errorData = await response.json();
@@ -106,8 +119,9 @@ function displayWords(wordsToDisplay) {
         deleteButton.setAttribute("type", "button")
         deleteButton.textContent = 'Delete';
         deleteButton.onclick = (event) => {
+            console.log(word._id, li)
             // event.preventDefault()
-            deleteWord(word.id, li);
+            deleteWord(word._id, li);
         };
         li.appendChild(deleteButton);
 
@@ -205,17 +219,15 @@ function displaySearchResults(words) {
 }
 
 function deleteWord(id, liElement) {
-    console.log(liElement)
-    // liElement.parentNode.removeChild(liElement);
     fetch(`http://localhost:3000/api/words/${id}`, {
         method: 'DELETE',
     })
         .then(response => {
             if (response.status === 204) {
-                console.log('Deleting word with ID:', id)
+                // console.log('Deleting word with ID:', id)
                 // Word deleted successfully, remove the liElement from the DOM
-                console.log(liElement)
-                // liElement.parentNode.removeChild(liElement);
+                // console.log(liElement)
+                liElement.parentNode.removeChild(liElement);
                 // shuffledWords = shuffledWords.filter(word => word.id !== id);
                 // displayWords(shuffledWords);
             } else {

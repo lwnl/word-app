@@ -3,17 +3,22 @@ const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb'); // 引入 MongoDB 驱动
 const app = express();
 const PORT = 3000;
+const { deleteWord } = require('./database');
 
 // 连接 MongoDB
 const uri = "mongodb://localhost:27017"; // 替换为你的 MongoDB 连接字符串
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
+
 async function run() {
   try {
     await client.connect();
     console.log("Connected correctly to server");
     const db = client.db(dbName);
+
+    // 创建文本索引
+    await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
 
     // 添加单词的路由
     app.post('/api/words', async (req, res) => {
@@ -54,8 +59,8 @@ async function run() {
     app.delete('/api/words/:id', async (req, res) => {
       const id = req.params.id;
       try {
-        const result = await db.collection('words').deleteOne({ _id: ObjectId(id) });
-        if (result.deletedCount === 1) {
+        const result = await deleteWord(id); // 使用 deleteWord 函数
+        if (result) {
           res.sendStatus(204); // 成功删除，返回204状态码
         } else {
           res.status(404).json({ error: 'Word not found' });
