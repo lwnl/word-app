@@ -1,105 +1,55 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId; // 用于处理 ObjectId
 
-// connect to the database
-const db = new sqlite3.Database(path.resolve(__dirname, 'words.db'), (err) => {
-  if (err) {
-    console.error('Could not connect to database', err);
-  } else {
-    console.log('Connected to database');
+const uri = "mongodb://localhost:27017";
+const dbName = "word-db";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+async function connectToDb() {
+  try {
+    await client.connect();
+    return client.db(dbName);
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
   }
-});
-
-// create word table if not yet exists
-function createTables() {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.run(`
-        CREATE TABLE IF NOT EXISTS words (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          chinese TEXT NOT NULL,
-          german TEXT NOT NULL,
-          categoryAdd TEXT NOT NULL
-        )
-      `, (err) => {
-        if (err) {
-          console.error('Error creating words table', err);
-          reject(err);
-          return;
-        }
-        resolve();
-      });
-    });
-  });
 }
 
-// add a new word to the database
-function addWord(chinese, german, categoryAdd) {
-  return new Promise((resolve, reject) => {
-    if (!chinese || !german || !categoryAdd) {
-      reject(new Error('Missing required fields'));
-      return;
-    }
-
-    db.run('INSERT INTO words (chinese, german, categoryAdd) VALUES (?, ?, ?)', [chinese, german, categoryAdd], function (err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve({ id: this.lastID });
-    });
-  });
+// 添加新单词
+async function addWord(chinese, german, categoryAdd) {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const result = await collection.insertOne({ chinese, german, categoryAdd });
+  return { id: result.insertedId.toString() }; // 返回插入的文档的 ID
 }
 
-// get all words from the database
-function getAllWords() {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM words', (err, rows) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(rows);
-    });
-  });
+// 获取所有单词
+async function getAllWords() {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const words = await collection.find().toArray();
+  return words;
 }
 
-// Search words by Chinese or German
-function searchWords(query) {
-  return new Promise((resolve, reject) => {
-    const searchQuery = `%${query}%`;
-    db.all(
-      'SELECT * FROM words WHERE chinese LIKE ? OR german LIKE ?',
-      [searchQuery, searchQuery],
-      (err, rows) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(rows);
-      }
-    );
-  });
+// 搜索单词
+async function searchWords(query) {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const words = await collection.find({ $text: { $search: query } }).toArray();
+  return words;
 }
 
-// Delete a word by ID
-function deleteWord(id) {
-  return new Promise((resolve, reject) => {
-    db.run('DELETE FROM words WHERE id = ?', [id], function (err) {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve();
-    });
-  });
+// 删除单词
+async function deleteWord(id) {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  return result.deletedCount === 1;
 }
 
-// export functions
-module.exports = {
-  addWord,
-  getAllWords,
-  createTables,
-  searchWords,
-  deleteWord
-};
+// module.exports = {
+//   addWord,
+//   getAllWords,
+//   searchWords,
+//   deleteWord
+// };

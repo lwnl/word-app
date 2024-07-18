@@ -1,65 +1,80 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ObjectId } = require('mongodb'); // 引入 MongoDB 驱动
 const app = express();
 const PORT = 3000;
-const db = require('./database.js'); // Import functions from database.js
 
+// 连接 MongoDB
+const uri = "mongodb://localhost:27017"; // 替换为你的 MongoDB 连接字符串
+const dbName = "word-db";
+const client = new MongoClient(uri);
+
+async function run() {
+  try {
+    await client.connect();
+    console.log("Connected correctly to server");
+    const db = client.db(dbName);
+
+    // 添加单词的路由
+    app.post('/api/words', async (req, res) => {
+      const { chinese, german, categoryAdd } = req.body;
+      try {
+        const result = await db.collection('words').insertOne({ chinese, german, categoryAdd });
+        res.status(201).json({ id: result.insertedId });
+      } catch (error) {
+        console.error('Error adding word:', error);
+        res.status(500).json({ error: 'Failed to add word' });
+      }
+    });
+
+    // 获取所有单词的路由
+    app.get('/api/words', async (req, res) => {
+      try {
+        const words = await db.collection('words').find().toArray();
+        res.json(words);
+      } catch (error) {
+        console.error('Error fetching words:', error);
+        res.status(500).json({ error: 'Failed to fetch words' });
+      }
+    });
+
+    // 搜索单词的路由
+    app.get('/api/words/search', async (req, res) => {
+      const query = req.query.query;
+      try {
+        const words = await db.collection('words').find({ $text: { $search: query } }).toArray();
+        res.json(words);
+      } catch (error) {
+        console.error('Error searching words:', error);
+        res.status(500).json({ error: 'Failed to search words' });
+      }
+    });
+
+    // 删除单词的路由
+    app.delete('/api/words/:id', async (req, res) => {
+      const id = req.params.id;
+      try {
+        const result = await db.collection('words').deleteOne({ _id: ObjectId(id) });
+        if (result.deletedCount === 1) {
+          res.sendStatus(204); // 成功删除，返回204状态码
+        } else {
+          res.status(404).json({ error: 'Word not found' });
+        }
+      } catch (error) {
+        console.error('Error deleting word:', error);
+        res.status(500).json({ error: 'Failed to delete word' });
+      }
+    });
+
+  } catch (err) {
+    console.error(err.stack);
+  }
+}
+run().catch(console.dir);
+
+// 中间件
 app.use(express.json());
 app.use(cors());
-
-// Create tables on application startup
-db.createTables()
-  .catch((err) => {
-    console.error('Error creating tables:', err.message);
-    process.exit(1); // Exit process if table creation fails
-  });
-
-// Add new word (call function from database.js)
-app.post('/api/words', async (req, res) => {
-  try {
-    const { chinese, german, categoryAdd } = req.body;
-    const word = await db.addWord(chinese, german, categoryAdd);
-    res.json(word);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get all words (call function from database.js)
-app.get('/api/words', async (req, res) => {
-  try {
-    const words = await db.getAllWords();
-    res.json(words);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Search words by Chinese or German 
-app.get('/api/words/search', async (req, res) => {
-  try {
-    const query = req.query.query;
-    const words = await db.searchWords(query);
-    res.json(words);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Delete a word by ID
-app.delete('/api/words/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    await db.deleteWord(id);
-    res.status(204).end(); // Successfully deleted, no content to return
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
