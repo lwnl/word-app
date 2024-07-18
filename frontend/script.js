@@ -1,4 +1,11 @@
-/* 
+/**
+ * Function list:
+ * Store words
+ * Avoid storing duplicate words
+ * Search for words
+ * Randomly display words
+ * Switch word categories
+ * Delete a word and automatically add a word 
  */
 
 // Global variables
