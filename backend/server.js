@@ -3,7 +3,7 @@ const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb'); // 引入 MongoDB 驱动
 const app = express();
 const PORT = 3000;
-const { deleteWord } = require('./database');
+const deleteWord = require('./database');
 
 // 连接 MongoDB
 const uri = "mongodb://localhost:27017"; // 替换为你的 MongoDB 连接字符串

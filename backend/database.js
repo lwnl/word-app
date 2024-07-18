@@ -46,9 +46,4 @@ async function deleteWord(id) {
   return result.deletedCount === 1;
 }
 
-module.exports = {
-  addWord,
-  getAllWords,
-  searchWords,
-  deleteWord
-};
+module.exports = deleteWord
