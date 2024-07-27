@@ -232,7 +232,7 @@ class WordApp {
             });
 
             if (response.status === 204) {
-                // Remove the deleted word from the UI
+                // confirm the category of the deleted word, and find the remaining words in the same category
                 const category = this.words.find(word => word._id === id).categoryAdd;
                 const remainingWords = this.words.filter(word => word._id !== id);
                 const remainingCategoryWords = remainingWords.filter(word => word.categoryAdd === category);
