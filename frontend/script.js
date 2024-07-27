@@ -1,10 +1,10 @@
 /**
  * Function list:
- * Store words
- * Avoid storing duplicate words
- * Search for words
- * Randomly display words
- * Switch word categories
+ * Store words -- ok
+ * Avoid storing duplicate words -- ok
+ * Search for words -- ok
+ * Randomly display words -- ok
+ * Switch word categories 
  * Delete a word and automatically add a word 
  */
 
@@ -62,6 +62,8 @@ function fetchWords() {
         .catch(error => console.error('Error fetching words:', error));
 }
 
+
+//function to add a word
 async function addWord() {
     const chinese = document.getElementById('chinese').value;
     const german = document.getElementById('german').value;
@@ -73,6 +75,18 @@ async function addWord() {
     }
 
     try {
+        // Get all words
+        const fetchResponse = await fetch('http://localhost:3000/api/words');
+        const words = await fetchResponse.json();
+
+        // Check if the new word already exists
+        const duplicate = words.find(word => word.chinese === chinese && word.german === german);
+        if (duplicate) {
+            alert('The word already exists');
+            return;
+        }
+
+        // If the word does not exist, proceed to add the new word
         const response = await fetch('http://localhost:3000/api/words', {
             method: 'POST',
             headers: {
@@ -83,16 +97,15 @@ async function addWord() {
 
         if (response.ok) {
             const data = await response.json();
-            alert('Adding successfully');
+            alert('Word added successfully');
 
-            // 创建一个包含所有单词数据和返回的id的对象
+            // Create an object containing all word data and the returned id
             const newWord = {
                 _id: data.id,
                 chinese,
                 german,
                 categoryAdd
             };
-
 
             fetchWords(); // Fetch words again to update word list
         } else {
@@ -126,8 +139,6 @@ function displayWords(wordsToDisplay) {
         deleteButton.setAttribute("type", "button")
         deleteButton.textContent = 'Delete';
         deleteButton.onclick = (event) => {
-            console.log(word._id, li)
-            // event.preventDefault()
             deleteWord(word._id, li);
         };
         li.appendChild(deleteButton);
@@ -231,12 +242,8 @@ function deleteWord(id, liElement) {
     })
         .then(response => {
             if (response.status === 204) {
-                // console.log('Deleting word with ID:', id)
-                // Word deleted successfully, remove the liElement from the DOM
-                // console.log(liElement)
                 liElement.parentNode.removeChild(liElement);
-                // shuffledWords = shuffledWords.filter(word => word.id !== id);
-                // displayWords(shuffledWords);
+                fetchWords()
             } else {
                 console.error('Failed to delete word');
             }
