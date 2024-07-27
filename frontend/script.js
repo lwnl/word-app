@@ -1,3 +1,14 @@
+/**
+ * Function list:
+ * Store words -- ok
+ * Avoid storing duplicate words -- ok
+ * Search for words -- ok
+ * Randomly display words -- ok
+ * Switch word categories 
+ * Delete a word and automatically add a word 
+ * multiple users managment 
+ */
+
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', (event) => {
     const wordApp = new WordApp();
