@@ -16,16 +16,16 @@
                 <option value="tech">Technical Words</option>
                 <option value="daily">Daily Words</option>
             </select>
-            <button onclick="addWord()">Add</button>
+            <button id="addWordButton">Add</button>
         </div>
 
         <h2>Search Words</h2>
         <input type="text" id="searchQuery" placeholder="Search by Chinese or German">
-        <button onclick="searchWords()">Search</button>
+        <button id="searchButton">Search</button>
         <ol id="searchResults"></ol>
         
         <h2>Random Word List</h2>
-        <form onsubmit="handleFormSubmit(event)">
+        <form id="randomWordsForm">
             <select id="categoryShow">
                 <option value="all">All Words</option>
                 <option value="tech">Technical Words</option>
@@ -35,8 +35,8 @@
             <input id="quantity" type="text" placeholder="quantity">
             <button type="submit">Get Random Words</button>
         </form>
-        <button id="btnChinese" onclick="toggleChinese()">Hide Chinese</button>
-        <button id="btnGerman" onclick="toggleGerman()">Show Deutsch</button>
+        <button id="btnChinese">Hide Chinese</button>
+        <button id="btnGerman">Show Deutsch</button>
         <ol id="wordList"></ol>
     </div>
     <script src="script.js"></script>
