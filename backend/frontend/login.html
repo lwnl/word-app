@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>login</title>
   <link rel="stylesheet" href="./frontend/css/login.css">
+  <script defer src="./frontend/js/login.js"></script>
 </head>
 <body>
   <div class="login">
     <h1>Welcome to my vocabulary!</h1>
-    <form action="" method="post">
+    <form id="loginForm">
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required>
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required>
-      <button type="submit">Login</button>
+      <button type="button" id="loginBtn">Login</button>
+      <button type="button" id="registerBtn">Register</button>
     </form>
   </div>
 </body>

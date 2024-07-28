@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb'); // 引入 MongoDB 驱动
+const path = require('path'); // 导入 path 模块
 const app = express();
 const PORT = 3000;
 const deleteWord = require('./database');
@@ -10,12 +11,14 @@ const uri = "mongodb://localhost:27017"; // 替换为你的 MongoDB 连接字符
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
-
 async function run() {
   try {
     await client.connect();
     console.log("Connected correctly to server");
     const db = client.db(dbName);
+
+    // Serve static files from the 'frontend' directory
+    app.use(express.static(path.join(__dirname, 'frontend')));
 
     // 创建文本索引
     await db.collection('words').createIndex({ chinese: 'text', german: 'text' });

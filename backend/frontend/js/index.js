@@ -9,7 +9,7 @@
  */
 
 // Initialize the application once the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
     const wordApp = new WordApp();
     wordApp.init();  // Initialize the WordApp instance
 });
