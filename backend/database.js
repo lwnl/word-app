@@ -14,15 +14,15 @@ async function connectToDb() {
   }
 }
 
-// 添加新单词
+// add new word
 async function addWord(chinese, german, categoryAdd) {
   const db = await connectToDb();
   const collection = db.collection('words');
   const result = await collection.insertOne({ chinese, german, categoryAdd });
-  return { id: result.insertedId.toString() }; // 返回插入的文档的 ID
+  return { id: result.insertedId.toString() }; // return the id of the newly added word
 }
 
-// 获取所有单词
+// aquiring all words
 async function getAllWords() {
   const db = await connectToDb();
   const collection = db.collection('words');
@@ -30,7 +30,7 @@ async function getAllWords() {
   return words;
 }
 
-// 搜索单词
+// search a word
 async function searchWords(query) {
   const db = await connectToDb();
   const collection = db.collection('words');
@@ -38,7 +38,7 @@ async function searchWords(query) {
   return words;
 }
 
-// 删除单词
+// delete a word
 async function deleteWord(id) {
   const db = await connectToDb();
   const collection = db.collection('words');

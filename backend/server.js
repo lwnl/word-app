@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ObjectId } = require('mongodb'); // 引入 MongoDB 驱动
-const path = require('path'); // 导入 path 模块
+const { MongoClient, ObjectId } = require('mongodb'); // Import MongoDB driver
+const path = require('path'); // Import path module
 const app = express();
 const PORT = 3000;
 const deleteWord = require('./database');
 
-// 连接 MongoDB
-const uri = "mongodb://localhost:27017"; // 替换为你的 MongoDB 连接字符串
+// Connect to MongoDB
+const uri = "mongodb://localhost:27017"; // Replace with your MongoDB connection string
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
@@ -20,10 +20,57 @@ async function run() {
     // Serve static files from the 'frontend' directory
     app.use(express.static(path.join(__dirname, 'static')));
 
-    // 创建文本索引
+    // Route for registering new users
+    app.post('/api/register', async (req, res) => {
+      const { username, password } = req.body;
+
+      // Validate username and password
+      const usernamePattern = /^[a-zA-Z0-9_]{4,}$/;
+      if (!usernamePattern.test(username)) {
+        return res.status(400).json({ error: 'Username must be at least 4 characters long and consist of letters, numbers, and underscores' });
+      }
+
+      if (password.length < 4) {
+        return res.status(400).json({ error: 'Password must be at least 4 characters long' });
+      }
+
+      try {
+        // Check if username already exists
+        const existingUser = await db.collection('users').findOne({ username });
+        if (existingUser) {
+          return res.status(400).json({ error: 'Username already exists, please choose a different username' });
+        }
+
+        // Store user information
+        await db.collection('users').insertOne({ username, password });
+        res.status(201).json({ message: 'Registration successful' });
+      } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).json({ error: 'Registration failed' });
+      }
+    });
+
+    // Route for logging in users
+    app.post('/api/login', async (req, res) => {
+      const { username, password } = req.body;
+    
+      try {
+        const user = await db.collection('users').findOne({ username });
+        if (user && user.password === password) {
+          res.status(200).json({ message: 'Login successful' });
+        } else {
+          res.status(400).json({ error: 'Invalid username or password' });
+        }
+      } catch (error) {
+        console.error('Error logging in user:', error);
+        res.status(500).json({ error: 'Login failed' });
+      }
+    });
+
+    // Create text index
     await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
 
-    // 添加单词的路由
+    // Route for adding a word
     app.post('/api/words', async (req, res) => {
       const { chinese, german, categoryAdd } = req.body;
       try {
@@ -35,7 +82,7 @@ async function run() {
       }
     });
 
-    // 获取所有单词的路由
+    // Route for fetching all words
     app.get('/api/words', async (req, res) => {
       try {
         const words = await db.collection('words').find().toArray();
@@ -46,7 +93,7 @@ async function run() {
       }
     });
 
-    // 搜索单词的路由
+    // Route for searching words
     app.get('/api/words/search', async (req, res) => {
       const query = req.query.query;
       try {
@@ -58,13 +105,13 @@ async function run() {
       }
     });
 
-    // 删除单词的路由
+    // Route for deleting a word
     app.delete('/api/words/:id', async (req, res) => {
       const id = req.params.id;
       try {
-        const result = await deleteWord(id); // 使用 deleteWord 函数
+        const result = await deleteWord(id); // Use deleteWord function
         if (result) {
-          res.sendStatus(204); // 成功删除，返回204状态码
+          res.sendStatus(204); // Successfully deleted, return 204 status code
         } else {
           res.status(404).json({ error: 'Word not found' });
         }
@@ -80,7 +127,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-// 中间件
+// Middleware
 app.use(express.json());
 app.use(cors());
 
