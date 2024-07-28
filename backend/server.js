@@ -18,7 +18,7 @@ async function run() {
     const db = client.db(dbName);
 
     // Serve static files from the 'frontend' directory
-    app.use(express.static(path.join(__dirname, 'frontend')));
+    app.use(express.static(path.join(__dirname, 'static')));
 
     // 创建文本索引
     await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
