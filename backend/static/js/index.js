@@ -1,17 +1,12 @@
-/**
- * Function list:
- * Store words -- ok
- * Avoid storing duplicate words -- ok
- * Search for words -- ok
- * Randomly display words -- ok
- * Delete a word and automatically add a word -- ok
- * multiple users managment 
- */
-
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     const wordApp = new WordApp();
     wordApp.init();  // Initialize the WordApp instance
+     // Add event listener for the logout button
+     const logoutBtn = document.getElementById('logoutBtn');
+     logoutBtn.addEventListener('click', () => {
+         window.location.href = 'http://localhost:3000/login.html';
+     });
 });
 
 class WordApp {

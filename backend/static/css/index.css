@@ -14,9 +14,9 @@ body {
 }
 
 
-
 button {
   margin: 5px;
+  padding: 2px;
 }
 
 #wordList {
@@ -31,4 +31,10 @@ button {
 
 #searchQuery {
   width: 25ch;
+}
+
+.logout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
