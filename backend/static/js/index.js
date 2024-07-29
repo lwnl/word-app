@@ -34,7 +34,6 @@ class WordApp {
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
         this.categoryShow = document.getElementById('categoryShow'); // 新增初始化
-        this.currentCategory = 'all'; // 初始化当前类别
     }
 
     async fetchWords() {
@@ -264,8 +263,8 @@ class WordApp {
             await this.fetchWords();
 
             // Get remaining words of the current category
-            const remainingCategoryWords = this.words.filter(word => word.categoryAdd === this.currentCategory);
-
+            const remainingCategoryWords = this.currentCategory === 'all' ? this.words : this.words.filter(word => word.categoryAdd === this.currentCategory);
+            console.log('remainingCategoryWords:', remainingCategoryWords);
             // Get the text of currently displayed words in a unified format
             const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                 const text = li.firstChild.textContent;
@@ -293,7 +292,7 @@ class WordApp {
 
                 return !displayedWords.includes(candidateText);
             });
-
+            console.log('newWordCandidates:', newWordCandidates);
             if (newWordCandidates.length > 0) {
                 // Select a new word from the remaining candidates
                 const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
