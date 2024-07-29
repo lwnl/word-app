@@ -250,63 +250,87 @@ class WordApp {
 
     // Delete a word and replace it with a random word of the same category
     async deleteWord(id, liElement) {
-        try {
-            // Send DELETE request to the server
-            const response = await fetch(`http://localhost:3000/api/words/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
+    try {
+        // Send DELETE request to the server
+        const response = await fetch(`http://localhost:3000/api/words/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
+            }
+        });
+
+        if (response.status === 204) {
+            // Fetch the updated list of words from the server
+            await this.fetchWords();
+
+            // Get remaining words of the current category
+            const remainingCategoryWords = this.words.filter(word => word.categoryAdd === this.currentCategory);
+
+            // Get the text of currently displayed words in a unified format
+            const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
+                const text = li.firstChild.textContent;
+                if (this.showChineseWords && this.showGermanWords) {
+                    // Displayed format is Chinese - German
+                    return text;
+                } else if (this.showChineseWords) {
+                    // Displayed format is Chinese only
+                    return text.split(' - ')[0]; // Extract Chinese part
+                } else if (this.showGermanWords) {
+                    // Displayed format is German only
+                    return text.split(' - ')[1]; // Extract German part
                 }
             });
-    
-            if (response.status === 204) {
-                // Remove the deleted word from this.words
-                this.words = this.words.filter(word => word._id !== id);
-    
-                // Get remaining words of the current category
-                const remainingCategoryWords = this.words.filter(word => word.categoryAdd === this.currentCategory);
-    
-                // Get the text of currently displayed words
-                const existingWordsText = Array.from(document.getElementById('wordList').children).map(li => li.firstChild.textContent);
-                const newWordCandidates = remainingCategoryWords.filter(word => !existingWordsText.includes(`${word.chinese} - ${word.german}`));
-    
-                if (newWordCandidates.length > 0) {
-                    // Select a new word from the remaining candidates
-                    const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
-    
-                    // Create a list item for the new word
-                    const newLi = document.createElement('li');
-                    if (this.showChineseWords && this.showGermanWords) {
-                        newLi.textContent = `${newWord.chinese} - ${newWord.german}`;
-                    } else if (this.showChineseWords) {
-                        newLi.textContent = newWord.chinese;
-                    } else if (this.showGermanWords) {
-                        newLi.textContent = newWord.german;
-                    }
-    
-                    // Create a delete button and add it to the new word item
-                    const deleteButton = document.createElement('button');
-                    deleteButton.setAttribute("type", "button");
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.onclick = () => {
-                        this.deleteWord(newWord._id, newLi);
-                    };
-                    newLi.appendChild(deleteButton);
-    
-                    // Replace the deleted word item with the new word item
-                    liElement.parentNode.replaceChild(newLi, liElement);
-                } else {
-                    // If no suitable new words, simply remove the deleted word item
-                    liElement.parentNode.removeChild(liElement);
+
+            // Ensure each candidate word text is unified for comparison
+            const newWordCandidates = remainingCategoryWords.filter(word => {
+                const candidateText = this.showChineseWords && this.showGermanWords
+                    ? `${word.chinese} - ${word.german}`
+                    : this.showChineseWords
+                    ? word.chinese
+                    : this.showGermanWords
+                    ? word.german
+                    : `${word.chinese} - ${word.german}`; // Fallback format
+
+                return !displayedWords.includes(candidateText);
+            });
+
+            if (newWordCandidates.length > 0) {
+                // Select a new word from the remaining candidates
+                const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
+
+                // Create a list item for the new word
+                const newLi = document.createElement('li');
+                if (this.showChineseWords && this.showGermanWords) {
+                    newLi.textContent = `${newWord.chinese} - ${newWord.german}`;
+                } else if (this.showChineseWords) {
+                    newLi.textContent = newWord.chinese;
+                } else if (this.showGermanWords) {
+                    newLi.textContent = newWord.german;
                 }
-    
-                // Update the number of words display
-                this.numberOfWords.innerHTML = this.words.length;
+
+                // Create a delete button and add it to the new word item
+                const deleteButton = document.createElement('button');
+                deleteButton.setAttribute("type", "button");
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => {
+                    this.deleteWord(newWord._id, newLi);
+                };
+                newLi.appendChild(deleteButton);
+
+                // Replace the deleted word item with the new word item
+                liElement.parentNode.replaceChild(newLi, liElement);
             } else {
-                console.error('Failed to delete word');
+                // If no suitable new words, simply remove the deleted word item
+                liElement.parentNode.removeChild(liElement);
             }
-        } catch (error) {
-            console.error('Error deleting word:', error);
+
+            // Update the number of words display
+            this.numberOfWords.innerHTML = this.words.length;
+        } else {
+            console.error('Failed to delete word');
         }
+    } catch (error) {
+        console.error('Error deleting word:', error);
     }
+}
 }
