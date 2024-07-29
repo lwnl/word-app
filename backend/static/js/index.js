@@ -95,23 +95,27 @@ class WordApp {
         const chinese = document.getElementById('chinese').value; // Get the Chinese word
         const german = document.getElementById('german').value; // Get the German word
         const categoryAdd = document.getElementById('categoryAdd').value; // Get the category
-
+    
         // Validate input fields
         if (!chinese || !german || !categoryAdd) {
             alert('Missing required fields');
             return;
         }
-
+    
         try {
             // Check if the word already exists
-            const fetchResponse = await fetch('http://localhost:3000/api/words');
+            const fetchResponse = await fetch('http://localhost:3000/api/words', {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
             const words = await fetchResponse.json();
             const duplicate = words.find(word => word.chinese === chinese && word.german === german);
             if (duplicate) {
                 alert('The word already exists');
                 return;
             }
-
+    
             // Add the new word to the server
             const response = await fetch('http://localhost:3000/api/words', {
                 method: 'POST',
@@ -121,15 +125,15 @@ class WordApp {
                 },
                 body: JSON.stringify({ chinese, german, categoryAdd }),
             });
-
+    
             if (response.ok) {
                 const data = await response.json();
                 alert('Word added successfully');
                 this.fetchWords(); // Refresh the word list
             } else {
-                const errorData = await response.json();
-                console.error('Error adding word:', errorData.error);
-                alert('Error adding word: ' + errorData.error);
+                const errorData = await response.text(); // 获取文本而不是 JSON
+                console.error('Error adding word:', errorData);
+                alert('Error adding word: ' + errorData);
             }
         } catch (error) {
             console.error('Error adding word:', error);
