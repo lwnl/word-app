@@ -12,6 +12,9 @@
 	•	login: switch login page to index page – ok
 	•	logout: switch index page to login page – ok
 	•	Multiple users management - ok
+	•	create another word list of reviewing
+	•	and button to move the word to wordlist reviewing
+	•	add category of reviewing
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  
