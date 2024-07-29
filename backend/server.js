@@ -1,13 +1,21 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ObjectId } = require('mongodb'); // Import MongoDB driver
-const path = require('path'); // Import path module
+const { MongoClient, ObjectId } = require('mongodb');
+const path = require('path');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = 3000;
 const deleteWord = require('./database');
+require('dotenv').config(); // 加载环境变量
+const SECRET_KEY = process.env.SECRET_KEY; // 从环境变量中读取密钥
 
-// Connect to MongoDB
-const uri = "mongodb://localhost:27017"; // Replace with your MongoDB connection string
+// Middleware
+app.use(express.json()); // 解析 JSON 格式的请求体
+app.use(cors()); // 允许跨域请求
+
+// MongoDB 连接配置
+const uri = "mongodb://localhost:27017";
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
@@ -20,11 +28,28 @@ async function run() {
     // Serve static files from the 'frontend' directory
     app.use(express.static(path.join(__dirname, 'static')));
 
-    // Route for registering new users
+    // JWT 身份验证中间件
+    function authenticateToken(req, res, next) {
+      const authHeader = req.headers['authorization'];
+      const token = authHeader && authHeader.split(' ')[1];
+
+      if (token == null) return res.sendStatus(401); // 如果没有令牌，返回 401 状态
+
+      jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.sendStatus(403); // 如果令牌无效，返回 403 状态
+        req.user = user; // 将解码后的用户信息附加到请求对象上
+        next(); // 继续处理下一个中间件或路由处理程序
+      });
+    }
+
+    // 用户模型
+    const User = db.collection('users');
+
+    // 注册路由
     app.post('/api/register', async (req, res) => {
       const { username, password } = req.body;
 
-      // Validate username and password
+      // 验证用户名和密码
       const usernamePattern = /^[a-zA-Z0-9_]{4,}$/;
       if (!usernamePattern.test(username)) {
         return res.status(400).json({ error: 'Username must be at least 4 characters long and consist of letters, numbers, and underscores' });
@@ -35,46 +60,51 @@ async function run() {
       }
 
       try {
-        // Check if username already exists
-        const existingUser = await db.collection('users').findOne({ username });
+        const existingUser = await User.findOne({ username });
         if (existingUser) {
-          return res.status(400).json({ error: 'Username already exists, please choose a different username' });
+          return res.status(400).json({ error: 'Username already exists' });
         }
-
-        // Store user information
-        await db.collection('users').insertOne({ username, password });
-        res.status(201).json({ message: 'Registration successful' });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+        const newUser = { username, password: hashedPassword, token };
+        await User.insertOne(newUser);
+        res.status(201).json({ token });
       } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Registration failed' });
+        res.status(500).json({ error: 'Internal server error' });
       }
     });
 
-    // Route for logging in users
+    // 登录路由
     app.post('/api/login', async (req, res) => {
       const { username, password } = req.body;
-    
       try {
-        const user = await db.collection('users').findOne({ username });
-        if (user && user.password === password) {
-          res.status(200).json({ message: 'Login successful' });
-        } else {
-          res.status(400).json({ error: 'Invalid username or password' });
+        const user = await User.findOne({ username });
+        if (!user) {
+          return res.status(401).json({ error: 'Invalid username or password' });
         }
+    
+        // 进行密码比对
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+          return res.status(401).json({ error: 'Invalid username or password' });
+        }
+    
+        // 生成新的令牌
+        const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+        res.json({ token });
       } catch (error) {
-        console.error('Error logging in user:', error);
-        res.status(500).json({ error: 'Login failed' });
+        res.status(500).json({ error: 'Internal server error' });
       }
     });
 
-    // Create text index
+    // 创建文本索引
     await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
 
-    // Route for adding a word
-    app.post('/api/words', async (req, res) => {
+    // 添加单词路由（受保护）
+    app.post('/api/words', authenticateToken, async (req, res) => {
       const { chinese, german, categoryAdd } = req.body;
       try {
-        const result = await db.collection('words').insertOne({ chinese, german, categoryAdd });
+        const result = await db.collection('words').insertOne({ chinese, german, categoryAdd, username: req.user.username });
         res.status(201).json({ id: result.insertedId });
       } catch (error) {
         console.error('Error adding word:', error);
@@ -82,10 +112,10 @@ async function run() {
       }
     });
 
-    // Route for fetching all words
-    app.get('/api/words', async (req, res) => {
+    // 获取所有单词路由（受保护）
+    app.get('/api/words', authenticateToken, async (req, res) => {
       try {
-        const words = await db.collection('words').find().toArray();
+        const words = await db.collection('words').find({ username: req.user.username }).toArray();
         res.json(words);
       } catch (error) {
         console.error('Error fetching words:', error);
@@ -93,11 +123,11 @@ async function run() {
       }
     });
 
-    // Route for searching words
-    app.get('/api/words/search', async (req, res) => {
+    // 搜索单词路由（受保护）
+    app.get('/api/words/search', authenticateToken, async (req, res) => {
       const query = req.query.query;
       try {
-        const words = await db.collection('words').find({ $text: { $search: query } }).toArray();
+        const words = await db.collection('words').find({ $text: { $search: query }, username: req.user.username }).toArray();
         res.json(words);
       } catch (error) {
         console.error('Error searching words:', error);
@@ -105,13 +135,13 @@ async function run() {
       }
     });
 
-    // Route for deleting a word
-    app.delete('/api/words/:id', async (req, res) => {
+    // 删除单词路由（受保护）
+    app.delete('/api/words/:id', authenticateToken, async (req, res) => {
       const id = req.params.id;
       try {
-        const result = await deleteWord(id); // Use deleteWord function
+        const result = await deleteWord(id); // 使用 deleteWord 函数
         if (result) {
-          res.sendStatus(204); // Successfully deleted, return 204 status code
+          res.sendStatus(204); // 成功删除，返回 204 状态码
         } else {
           res.status(404).json({ error: 'Word not found' });
         }
@@ -125,11 +155,8 @@ async function run() {
     console.error(err.stack);
   }
 }
-run().catch(console.dir);
 
-// Middleware
-app.use(express.json());
-app.use(cors());
+run().catch(console.dir);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

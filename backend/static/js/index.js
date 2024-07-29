@@ -1,51 +1,78 @@
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const wordApp = new WordApp();
-    wordApp.init();  // Initialize the WordApp instance
-     // Add event listener for the logout button
-     const logoutBtn = document.getElementById('logoutBtn');
-     logoutBtn.addEventListener('click', () => {
-         window.location.href = 'http://localhost:3000/login.html';
-     });
+    const token = localStorage.getItem('jwtToken'); // 确保 token 是从登录中获取并保存的
+
+    // 确保 token 存在后再初始化 WordApp 实例
+    if (token) {
+        const wordApp = new WordApp(token); // 将 token 传递给 WordApp 实例
+        wordApp.init();
+    } else {
+        console.error('No token found. Please log in first.');
+        window.location.href = 'http://localhost:3000/login.html'; // 或者其他适当的处理
+    }
+
+    // Add event listener for the logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            // 清除 token
+            localStorage.removeItem('jwtToken');
+            window.location.href = 'http://localhost:3000/login.html';
+        });
+    }
 });
 
 class WordApp {
-    constructor() {
-        // Initialize variables to manage words and their categories
-        this.words = []; // Array to store all words fetched from the server
-        this.techWords = []; // Array to store technical words
-        this.dailyWords = []; // Array to store daily words
-        this.showChineseWords = true; // Boolean to control the display of Chinese words
-        this.showGermanWords = false; // Boolean to control the display of German words
-        this.shuffledWords = []; // Array to store shuffled words for random display
-        this.numberOfWords = document.getElementById('numberOfWords'); // Element to display the number of words
-        this.categoryShow = document.getElementById('categoryShow'); // Dropdown to select word category
+    constructor(token) {
+        this.token = token;
+        this.words = [];
+        this.techWords = [];
+        this.dailyWords = [];
+        this.showChineseWords = true;
+        this.showGermanWords = false;
+        this.shuffledWords = [];
+        this.numberOfWords = document.getElementById('numberOfWords');
+        this.wordList = document.getElementById('wordList');
+        this.categoryShow = document.getElementById('categoryShow'); // 新增初始化
     }
 
-    // Initialize event listeners and fetch words from the server
-    init() {
-        this.fetchWords(); // Fetch initial list of words
-        // Add event listeners for category selection, button clicks, and form submissions
-        this.categoryShow.addEventListener('change', (event) => this.handleCategoryChange(event));
-        document.getElementById('btnChinese').addEventListener('click', () => this.toggleChinese());
-        document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
-        document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
-        document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
-        document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
-    }
-
-    // Fetch words from the server and categorize them
     async fetchWords() {
         try {
-            const response = await fetch('http://localhost:3000/api/words'); // Fetch words from the API
-            const data = await response.json(); // Parse the JSON response
-            this.words = data; // Store all words
-            // Separate words into categories
+            const response = await fetch('http://localhost:3000/api/words', {
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+            const data = await response.json();
+            this.words = data;
             this.techWords = data.filter(word => word.categoryAdd === 'tech');
             this.dailyWords = data.filter(word => word.categoryAdd === 'daily');
-            this.numberOfWords.innerHTML = this.words.length; // Update the number of words display
+            this.numberOfWords.innerHTML = this.words.length;
+            this.displayWords(this.words); // 更新后显示所有单词
         } catch (error) {
-            console.error('Error fetching words:', error); // Log errors if fetching fails
+            console.error('Error fetching words:', error);
+        }
+    }
+
+    init() {
+        this.fetchWords();
+        if (this.categoryShow) {
+            this.categoryShow.addEventListener('change', (event) => this.handleCategoryChange(event));
+        }
+        if (document.getElementById('btnChinese')) {
+            document.getElementById('btnChinese').addEventListener('click', () => this.toggleChinese());
+        }
+        if (document.getElementById('btnGerman')) {
+            document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
+        }
+        if (document.getElementById('addWordButton')) {
+            document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
+        }
+        if (document.getElementById('randomWordsForm')) {
+            document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
+        }
+        if (document.getElementById('searchButton')) {
+            document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
         }
     }
 
@@ -54,11 +81,11 @@ class WordApp {
         const selectedCategory = event.target.value; // Get the selected category
         // Update words based on selected category
         if (selectedCategory === 'tech') {
-            this.words = this.techWords;
+            this.displayWords(this.techWords);
         } else if (selectedCategory === 'daily') {
-            this.words = this.dailyWords;
+            this.displayWords(this.dailyWords);
         } else {
-            this.words = this.words;
+            this.displayWords(this.words);
         }
         this.numberOfWords.innerHTML = this.words.length; // Update the number of words display
     }
@@ -90,6 +117,7 @@ class WordApp {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
                 },
                 body: JSON.stringify({ chinese, german, categoryAdd }),
             });
@@ -111,7 +139,7 @@ class WordApp {
 
     // Display the list of words based on the current display settings
     displayWords(wordsToDisplay) {
-        const wordList = document.getElementById('wordList');
+        const wordList = this.wordList;
         wordList.innerHTML = ''; // Clear the existing word list
 
         wordsToDisplay.forEach(word => {
@@ -189,7 +217,11 @@ class WordApp {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/words/search?query=${query}`);
+            const response = await fetch(`http://localhost:3000/api/words/search?query=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
+                }
+            });
             if (!response.ok) {
                 console.error('Search failed:', response.statusText);
                 return;
@@ -224,6 +256,9 @@ class WordApp {
         try {
             const response = await fetch(`http://localhost:3000/api/words/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
+                }
             });
 
             if (response.status === 204) {
