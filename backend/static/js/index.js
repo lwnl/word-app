@@ -33,7 +33,8 @@ class WordApp {
         this.shuffledWords = [];
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
-        this.categoryShow = document.getElementById('categoryShow'); // 新增初始化
+        this.currentCategory = 'all'; // Initialize the current category. An value must be given!
+        this.categoryShow = document.getElementById('categoryShow'); 
     }
 
     async fetchWords() {
