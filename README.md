@@ -11,5 +11,7 @@
 	•	Delete a word and automatically add another word – ok
 	•	login: switch login page to index page – ok
 	•	logout: switch index page to login page – ok
-	•	Multiple users management - 
+	•	Multiple users management - ok
+	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
+
  
