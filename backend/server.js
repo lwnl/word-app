@@ -115,14 +115,14 @@ async function run() {
     });
 
     // Create text index
-    await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
+    await db.collection('words').createIndex({ matherLanguage: 'text', german: 'text' });
 
     // Add word route (protected)
     app.post('/api/words', authenticateToken, async (req, res) => {
-      const { chinese, german, categoryAdd } = req.body;
+      const { matherLanguage, german, categoryAdd } = req.body;
       try {
         const result = await db.collection('words').insertOne({
-          chinese,     
+          matherLanguage,     
           german,      
           categoryAdd,  
           username: req.user.username, 

@@ -37,7 +37,7 @@ class WordApp {
         this.words = [];
         this.techWords = [];
         this.dailyWords = [];
-        this.showChineseWords = true;
+        this.showmatherLanguageWords = true;
         this.showGermanWords = false;
         this.shuffledWords = [];
         this.numberOfWords = document.getElementById('numberOfWords');
@@ -67,7 +67,7 @@ class WordApp {
         this.fetchWords();
         // 添加事件监听器
         this.mainCategory.addEventListener('change', (event) => this.handleCategoryChange(event));
-        document.getElementById('btnChinese').addEventListener('click', () => this.toggleChinese());
+        document.getElementById('btnmatherLanguage').addEventListener('click', () => this.togglematherLanguage());
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
@@ -94,12 +94,12 @@ class WordApp {
 
     // Add a new word to the server and update the list of words
     async addWord() {
-        const chinese = document.getElementById('chinese').value; // Get the Chinese word
+        const matherLanguage = document.getElementById('matherLanguage').value; // Get the matherLanguage word
         const german = document.getElementById('german').value; // Get the German word
         const categoryAdd = document.getElementById('categoryAdd').value; // Get the category
 
         // Validate input fields
-        if (!chinese || !german || !categoryAdd) {
+        if (!matherLanguage || !german || !categoryAdd) {
             alert('Missing required fields');
             return;
         }
@@ -112,7 +112,7 @@ class WordApp {
                 }
             });
             const words = await fetchResponse.json();
-            const duplicate = words.find(word => word.chinese === chinese && word.german === german);
+            const duplicate = words.find(word => word.matherLanguage === matherLanguage && word.german === german);
             if (duplicate) {
                 alert('The word already exists');
                 return;
@@ -125,7 +125,7 @@ class WordApp {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
                 },
-                body: JSON.stringify({ chinese, german, categoryAdd }),
+                body: JSON.stringify({ matherLanguage, german, categoryAdd }),
             });
 
             if (response.ok) {
@@ -151,10 +151,10 @@ class WordApp {
         wordsToDisplay.forEach(word => {
             const li = document.createElement('li');
             // Display words based on current settings
-            if (this.showChineseWords && this.showGermanWords) {
-                li.textContent = `${word.chinese} - ${word.german}`;
-            } else if (this.showChineseWords) {
-                li.textContent = word.chinese;
+            if (this.showmatherLanguageWords && this.showGermanWords) {
+                li.textContent = `${word.matherLanguage} - ${word.german}`;
+            } else if (this.showmatherLanguageWords) {
+                li.textContent = word.matherLanguage;
             } else if (this.showGermanWords) {
                 li.textContent = word.german;
             } else {
@@ -172,10 +172,10 @@ class WordApp {
         });
     }
 
-    // Toggle the visibility of Chinese words
-    toggleChinese() {
-        this.showChineseWords = !this.showChineseWords;
-        document.getElementById('btnChinese').textContent = this.showChineseWords ? 'Hide Chinese' : 'Show Chinese';
+    // Toggle the visibility of matherLanguage words
+    togglematherLanguage() {
+        this.showmatherLanguageWords = !this.showmatherLanguageWords;
+        document.getElementById('btnmatherLanguage').textContent = this.showmatherLanguageWords ? 'Hide matherLanguage' : 'Show matherLanguage';
         this.displayWords(this.shuffledWords); // Refresh displayed words
     }
 
@@ -252,7 +252,7 @@ class WordApp {
 
         words.forEach(word => {
             const listItem = document.createElement('li');
-            listItem.innerText = `${word.chinese} - ${word.german}`;
+            listItem.innerText = `${word.matherLanguage} - ${word.german}`;
             resultsList.appendChild(listItem);
         });
     }
@@ -278,12 +278,12 @@ class WordApp {
                 // Get the text of currently displayed words in a unified format
                 const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                     const text = li.firstChild.textContent;
-                    if (this.showChineseWords && this.showGermanWords) {
-                        // Displayed format is Chinese - German
+                    if (this.showmatherLanguageWords && this.showGermanWords) {
+                        // Displayed format is matherLanguage - German
                         return text;
-                    } else if (this.showChineseWords) {
-                        // Displayed format is Chinese only
-                        return text.split(' - ')[0]; // Extract Chinese part
+                    } else if (this.showmatherLanguageWords) {
+                        // Displayed format is matherLanguage only
+                        return text.split(' - ')[0]; // Extract matherLanguage part
                     } else if (this.showGermanWords) {
                         // Displayed format is German only
                         return text.split(' - ')[1]; // Extract German part
@@ -292,13 +292,13 @@ class WordApp {
 
                 // Ensure each candidate word text is unified for comparison
                 const newWordCandidates = remainingCategoryWords.filter(word => {
-                    const candidateText = this.showChineseWords && this.showGermanWords
-                        ? `${word.chinese} - ${word.german}`
-                        : this.showChineseWords
-                            ? word.chinese
+                    const candidateText = this.showmatherLanguageWords && this.showGermanWords
+                        ? `${word.matherLanguage} - ${word.german}`
+                        : this.showmatherLanguageWords
+                            ? word.matherLanguage
                             : this.showGermanWords
                                 ? word.german
-                                : `${word.chinese} - ${word.german}`; // Fallback format
+                                : `${word.matherLanguage} - ${word.german}`; // Fallback format
 
                     return !displayedWords.includes(candidateText);
                 });
@@ -309,10 +309,10 @@ class WordApp {
 
                     // Create a list item for the new word
                     const newLi = document.createElement('li');
-                    if (this.showChineseWords && this.showGermanWords) {
-                        newLi.textContent = `${newWord.chinese} - ${newWord.german}`;
-                    } else if (this.showChineseWords) {
-                        newLi.textContent = newWord.chinese;
+                    if (this.showmatherLanguageWords && this.showGermanWords) {
+                        newLi.textContent = `${newWord.matherLanguage} - ${newWord.german}`;
+                    } else if (this.showmatherLanguageWords) {
+                        newLi.textContent = newWord.matherLanguage;
                     } else if (this.showGermanWords) {
                         newLi.textContent = newWord.german;
                     }
