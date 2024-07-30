@@ -37,13 +37,14 @@ class WordApp {
         this.words = [];
         this.techWords = [];
         this.dailyWords = [];
-        this.showmatherLanguageWords = true;
+        this.showMatherLanguageWords = true;
         this.showGermanWords = false;
         this.shuffledWords = [];
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
         this.currentCategory = 'all'; // Initialize the current category. An value must be given!
         this.mainCategory = document.getElementById('mainCategory');
+        this.subCategory = document.getElementById('subCategory'); 
     }
 
     async fetchWords() {
@@ -66,8 +67,9 @@ class WordApp {
     init() {
         this.fetchWords();
         // 添加事件监听器
-        this.mainCategory.addEventListener('change', (event) => this.handleCategoryChange(event));
-        document.getElementById('btnmatherLanguage').addEventListener('click', () => this.togglematherLanguage());
+        this.mainCategory.addEventListener('change', () => this.handleCategoryChange());
+        this.subCategory.addEventListener('change', () => this.handleCategoryChange());
+        document.getElementById('btnmatherLanguage').addEventListener('click', () => this.toggleMatherLanguage());
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
@@ -75,19 +77,32 @@ class WordApp {
     }
 
     // Handle category selection and update the displayed words
-    handleCategoryChange(event) {
-        this.currentCategory = event.target.value; // Update the current category
-
-        // Update the number of words based on the selected category
+    handleCategoryChange() {
+        this.currentCategory = this.mainCategory.value; // Update the current category
+    
+        // Update the number of words based on the selected categories
+        const subCategoryValue = this.subCategory.value;
         let categoryWords;
-        if (this.currentCategory === 'tech') {
-            categoryWords = this.techWords;
-        } else if (this.currentCategory === 'daily') {
-            categoryWords = this.dailyWords;
+        if (this.currentCategory === 'all') {
+            if (subCategoryValue === 'tech') {
+                categoryWords = this.techWords;
+            } else if (subCategoryValue === 'daily') {
+                categoryWords = this.dailyWords;
+            } else {
+                categoryWords = this.words;
+            }
+        } else if (this.currentCategory === 'review') {
+            if (subCategoryValue === 'tech') {
+                categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'tech');
+            } else if (subCategoryValue === 'daily') {
+                categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'daily');
+            } else {
+                categoryWords = this.words.filter(word => word.review === true);
+            }
         } else {
             categoryWords = this.words;
         }
-
+    
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
     }
@@ -151,9 +166,9 @@ class WordApp {
         wordsToDisplay.forEach(word => {
             const li = document.createElement('li');
             // Display words based on current settings
-            if (this.showmatherLanguageWords && this.showGermanWords) {
+            if (this.showMatherLanguageWords && this.showGermanWords) {
                 li.textContent = `${word.matherLanguage} - ${word.german}`;
-            } else if (this.showmatherLanguageWords) {
+            } else if (this.showMatherLanguageWords) {
                 li.textContent = word.matherLanguage;
             } else if (this.showGermanWords) {
                 li.textContent = word.german;
@@ -173,9 +188,9 @@ class WordApp {
     }
 
     // Toggle the visibility of matherLanguage words
-    togglematherLanguage() {
-        this.showmatherLanguageWords = !this.showmatherLanguageWords;
-        document.getElementById('btnmatherLanguage').textContent = this.showmatherLanguageWords ? 'Hide matherLanguage' : 'Show matherLanguage';
+    toggleMatherLanguage() {
+        this.showMatherLanguageWords = !this.showMatherLanguageWords;
+        document.getElementById('btnmatherLanguage').textContent = this.showMatherLanguageWords ? 'Hide matherLanguage' : 'Show matherLanguage';
         this.displayWords(this.shuffledWords); // Refresh displayed words
     }
 
@@ -278,10 +293,10 @@ class WordApp {
                 // Get the text of currently displayed words in a unified format
                 const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                     const text = li.firstChild.textContent;
-                    if (this.showmatherLanguageWords && this.showGermanWords) {
+                    if (this.showMatherLanguageWords && this.showGermanWords) {
                         // Displayed format is matherLanguage - German
                         return text;
-                    } else if (this.showmatherLanguageWords) {
+                    } else if (this.showMatherLanguageWords) {
                         // Displayed format is matherLanguage only
                         return text.split(' - ')[0]; // Extract matherLanguage part
                     } else if (this.showGermanWords) {
@@ -292,9 +307,9 @@ class WordApp {
 
                 // Ensure each candidate word text is unified for comparison
                 const newWordCandidates = remainingCategoryWords.filter(word => {
-                    const candidateText = this.showmatherLanguageWords && this.showGermanWords
+                    const candidateText = this.showMatherLanguageWords && this.showGermanWords
                         ? `${word.matherLanguage} - ${word.german}`
-                        : this.showmatherLanguageWords
+                        : this.showMatherLanguageWords
                             ? word.matherLanguage
                             : this.showGermanWords
                                 ? word.german
@@ -309,9 +324,9 @@ class WordApp {
 
                     // Create a list item for the new word
                     const newLi = document.createElement('li');
-                    if (this.showmatherLanguageWords && this.showGermanWords) {
+                    if (this.showMatherLanguageWords && this.showGermanWords) {
                         newLi.textContent = `${newWord.matherLanguage} - ${newWord.german}`;
-                    } else if (this.showmatherLanguageWords) {
+                    } else if (this.showMatherLanguageWords) {
                         newLi.textContent = newWord.matherLanguage;
                     } else if (this.showGermanWords) {
                         newLi.textContent = newWord.german;
