@@ -66,7 +66,7 @@ class WordApp {
 
     init() {
         this.fetchWords();
-        // 添加事件监听器
+        // Add event listeners
         this.mainCategory.addEventListener('change', () => this.handleCategoryChange());
         this.subCategory.addEventListener('change', () => this.handleCategoryChange());
         document.getElementById('btnmatherLanguage').addEventListener('click', () => this.toggleMatherLanguage());
@@ -83,24 +83,53 @@ class WordApp {
         // Update the number of words based on the selected categories
         const subCategoryValue = this.subCategory.value;
         let categoryWords;
-        if (this.currentCategory === 'all') {
-            if (subCategoryValue === 'tech') {
-                categoryWords = this.techWords;
-            } else if (subCategoryValue === 'daily') {
-                categoryWords = this.dailyWords;
-            } else {
+    
+        switch (this.currentCategory) {
+            case 'all':
+                switch (subCategoryValue) {
+                    case 'tech':
+                        categoryWords = this.techWords;
+                        break;
+                    case 'daily':
+                        categoryWords = this.dailyWords;
+                        break;
+                    default:
+                        categoryWords = this.words;
+                        break;
+                }
+                break;
+    
+            case 'review':
+                switch (subCategoryValue) {
+                    case 'tech':
+                        categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'tech');
+                        break;
+                    case 'daily':
+                        categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'daily');
+                        break;
+                    default:
+                        categoryWords = this.words.filter(word => word.review === true);
+                        break;
+                }
+                break;
+    
+            case 'unfamiliar':
+                switch (subCategoryValue) {
+                    case 'tech':
+                        categoryWords = this.words.filter(word => word.review === false && word.categoryAdd === 'tech');
+                        break;
+                    case 'daily':
+                        categoryWords = this.words.filter(word => word.review === false && word.categoryAdd === 'daily');
+                        break;
+                    default:
+                        categoryWords = this.words.filter(word => word.review === false);
+                        break;
+                }
+                break;
+    
+            default:
                 categoryWords = this.words;
-            }
-        } else if (this.currentCategory === 'review') {
-            if (subCategoryValue === 'tech') {
-                categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'tech');
-            } else if (subCategoryValue === 'daily') {
-                categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'daily');
-            } else {
-                categoryWords = this.words.filter(word => word.review === true);
-            }
-        } else {
-            categoryWords = this.words;
+                break;
         }
     
         // Update the number of words display
