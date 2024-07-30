@@ -14,29 +14,6 @@ async function connectToDb() {
   }
 }
 
-// add new word
-async function addWord(chinese, german, categoryAdd) {
-  const db = await connectToDb();
-  const collection = db.collection('words');
-  const result = await collection.insertOne({ chinese, german, categoryAdd });
-  return { id: result.insertedId.toString() }; // return the id of the newly added word
-}
-
-// aquiring all words
-async function getAllWords() {
-  const db = await connectToDb();
-  const collection = db.collection('words');
-  const words = await collection.find().toArray();
-  return words;
-}
-
-// search a word
-async function searchWords(query) {
-  const db = await connectToDb();
-  const collection = db.collection('words');
-  const words = await collection.find({ $text: { $search: query } }).toArray();
-  return words;
-}
 
 // delete a word
 async function deleteWord(id) {
