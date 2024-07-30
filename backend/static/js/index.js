@@ -43,7 +43,7 @@ class WordApp {
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
         this.currentCategory = 'all'; // Initialize the current category. An value must be given!
-        this.categoryShow = document.getElementById('categoryShow');
+        this.mainCategory = document.getElementById('mainCategory');
     }
 
     async fetchWords() {
@@ -66,7 +66,7 @@ class WordApp {
     init() {
         this.fetchWords();
         // 添加事件监听器
-        this.categoryShow.addEventListener('change', (event) => this.handleCategoryChange(event));
+        this.mainCategory.addEventListener('change', (event) => this.handleCategoryChange(event));
         document.getElementById('btnChinese').addEventListener('click', () => this.toggleChinese());
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
