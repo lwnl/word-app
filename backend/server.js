@@ -4,52 +4,69 @@ const { MongoClient, ObjectId } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+require('dotenv').config(); // Load environment variables
+
 const app = express();
 const PORT = 3000;
-const deleteWord = require('./database');
-require('dotenv').config(); // 加载环境变量
-const SECRET_KEY = process.env.SECRET_KEY; // 从环境变量中读取密钥
+const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware
-app.use(express.json()); // 解析 JSON 格式的请求体
-app.use(cors()); // 允许跨域请求
+app.use(express.json()); // Parse JSON request bodies
+app.use(cors()); // Enable CORS
 
-// MongoDB 连接配置
+// MongoDB connection configuration
 const uri = "mongodb://localhost:27017";
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
-async function run() {
+async function connectToDb() {
   try {
     await client.connect();
     console.log("Connected correctly to server");
-    const db = client.db(dbName);
+    return client.db(dbName);
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
+  }
+}
 
-    // Serve static files from the 'frontend' directory
+// Delete a word
+async function deleteWord(id) {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  return result.deletedCount === 1;
+}
+
+// JWT authentication middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401); // If no token, return 401 status
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) return res.sendStatus(403); // If token is invalid, return 403 status
+    req.user = user; // Attach decoded user information to the request object
+    next(); // Proceed to the next middleware or route handler
+  });
+}
+
+async function run() {
+  try {
+    const db = await connectToDb();
+
+    // Serve static files from the 'static' directory
     app.use(express.static(path.join(__dirname, 'static')));
 
-    // JWT 身份验证中间件
-    function authenticateToken(req, res, next) {
-      const authHeader = req.headers['authorization'];
-      const token = authHeader && authHeader.split(' ')[1];
-
-      if (token == null) return res.sendStatus(401); // 如果没有令牌，返回 401 状态
-
-      jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403); // 如果令牌无效，返回 403 状态
-        req.user = user; // 将解码后的用户信息附加到请求对象上
-        next(); // 继续处理下一个中间件或路由处理程序
-      });
-    }
-
-    // 用户模型
+    // User model
     const User = db.collection('users');
 
-    // 注册路由
+    // Registration route
     app.post('/api/register', async (req, res) => {
       const { username, password } = req.body;
 
-      // 验证用户名和密码
+      // Validate username and password
       const usernamePattern = /^[a-zA-Z0-9_]{4,}$/;
       if (!usernamePattern.test(username)) {
         return res.status(400).json({ error: 'Username must be at least 4 characters long and consist of letters, numbers, and underscores' });
@@ -74,7 +91,7 @@ async function run() {
       }
     });
 
-    // 登录路由
+    // Login route
     app.post('/api/login', async (req, res) => {
       const { username, password } = req.body;
       try {
@@ -82,14 +99,14 @@ async function run() {
         if (!user) {
           return res.status(401).json({ error: 'Invalid username or password' });
         }
-    
-        // 进行密码比对
+
+        // Compare passwords
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
           return res.status(401).json({ error: 'Invalid username or password' });
         }
-    
-        // 生成新的令牌
+
+        // Generate a new token
         const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
         res.json({ token });
       } catch (error) {
@@ -97,14 +114,20 @@ async function run() {
       }
     });
 
-    // 创建文本索引
+    // Create text index
     await db.collection('words').createIndex({ chinese: 'text', german: 'text' });
 
-    // 添加单词路由（受保护）
+    // Add word route (protected)
     app.post('/api/words', authenticateToken, async (req, res) => {
       const { chinese, german, categoryAdd } = req.body;
       try {
-        const result = await db.collection('words').insertOne({ chinese, german, categoryAdd, username: req.user.username });
+        const result = await db.collection('words').insertOne({
+          chinese,     
+          german,      
+          categoryAdd,  
+          username: req.user.username, 
+          review: false
+        });
         res.status(201).json({ id: result.insertedId });
       } catch (error) {
         console.error('Error adding word:', error);
@@ -112,7 +135,7 @@ async function run() {
       }
     });
 
-    // 获取所有单词路由（受保护）
+    // Get all words route (protected)
     app.get('/api/words', authenticateToken, async (req, res) => {
       try {
         const words = await db.collection('words').find({ username: req.user.username }).toArray();
@@ -123,7 +146,7 @@ async function run() {
       }
     });
 
-    // 搜索单词路由（受保护）
+    // Search words route (protected)
     app.get('/api/words/search', authenticateToken, async (req, res) => {
       const query = req.query.query;
       try {
@@ -135,13 +158,13 @@ async function run() {
       }
     });
 
-    // 删除单词路由（受保护）
+    // Delete word route (protected)
     app.delete('/api/words/:id', authenticateToken, async (req, res) => {
       const id = req.params.id;
       try {
-        const result = await deleteWord(id); // 使用 deleteWord 函数
+        const result = await deleteWord(id); // Use deleteWord function
         if (result) {
-          res.sendStatus(204); // 成功删除，返回 204 状态码
+          res.sendStatus(204); // Successful deletion, return 204 status code
         } else {
           res.status(404).json({ error: 'Word not found' });
         }
