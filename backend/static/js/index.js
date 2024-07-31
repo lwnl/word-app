@@ -35,12 +35,12 @@ class WordApp {
     constructor(token) {
         this.token = token;
         this.words = [];
+        this.shuffledWords = [];
+        this.currentCategory = 'all'; // Initialize the current category. An value must be given!
         this.showMatherLanguageWords = true;
         this.showGermanWords = false;
-        this.shuffledWords = [];
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
-        this.currentCategory = 'all'; // Initialize the current category. An value must be given!
         this.mainCategory = document.getElementById('mainCategory');
         this.subCategory = document.getElementById('subCategory'); 
     }
