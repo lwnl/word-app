@@ -38,6 +38,31 @@ async function deleteWord(id) {
   return result.deletedCount === 1;
 }
 
+// search and update word properties
+app.patch('/api/words/:id', authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const updatedFields = req.body;
+
+  try {
+    const db = await connectToDb();
+    const collection = db.collection('words');
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id), username: req.user.username },
+      { $set: updatedFields }
+    );
+
+    if (result.matchedCount === 0) {
+      res.status(404).send('Word not found');
+    } else {
+      const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
+      res.status(200).json(updatedWord);
+    }
+  } catch (error) {
+    console.error('Error updating word:', error);
+    res.status(500).json({ error: 'Failed to update word' });
+  }
+});
+
 // JWT authentication middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
