@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('No token found. Please log in first.');
         window.location.href = 'http://localhost:3000/login.html'; // 或者其他适当的处理
     }
-    
+
     // Display username in the span
     const usernameElement = document.getElementById('username');
     const username = localStorage.getItem('username');
@@ -42,7 +42,7 @@ class WordApp {
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
         this.mainCategory = document.getElementById('mainCategory');
-        this.subCategory = document.getElementById('subCategory'); 
+        this.subCategory = document.getElementById('subCategory');
     }
 
     async fetchWords() {
@@ -75,11 +75,11 @@ class WordApp {
     // Handle category selection and update the displayed words
     handleCategoryChange() {
         this.currentCategory = this.mainCategory.value; // Update the current category
-    
+
         // Update the number of words based on the selected categories
         const subCategoryValue = this.subCategory.value;
         let categoryWords;
-    
+
         switch (this.currentCategory) {
             case 'all':
                 switch (subCategoryValue) {
@@ -94,7 +94,7 @@ class WordApp {
                         break;
                 }
                 break;
-    
+
             case 'review':
                 switch (subCategoryValue) {
                     case 'tech':
@@ -108,7 +108,7 @@ class WordApp {
                         break;
                 }
                 break;
-    
+
             case 'unfamiliar':
                 switch (subCategoryValue) {
                     case 'tech':
@@ -122,12 +122,12 @@ class WordApp {
                         break;
                 }
                 break;
-    
+
             default:
                 categoryWords = this.words;
                 break;
         }
-    
+
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
         return categoryWords;
@@ -315,6 +315,8 @@ class WordApp {
 
                 // Get remaining words of the current category
                 const remainingCategoryWords = this.handleCategoryChange();
+                // Update the number of words display
+                this.numberOfWords.innerHTML = remainingCategoryWords.length;
                 console.log('remainingCategoryWords:', remainingCategoryWords);
                 // Get the text of currently displayed words in a unified format
                 const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
@@ -374,8 +376,7 @@ class WordApp {
                     liElement.parentNode.removeChild(liElement);
                 }
 
-                // Update the number of words display
-                this.numberOfWords.innerHTML = this.words.length;
+
             } else {
                 console.error('Failed to delete word');
             }
