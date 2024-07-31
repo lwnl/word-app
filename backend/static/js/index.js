@@ -56,9 +56,7 @@ class WordApp {
             });
             const data = await response.json();
             this.words = data;
-            this.techWords = data.filter(word => word.categoryAdd === 'tech');
-            this.dailyWords = data.filter(word => word.categoryAdd === 'daily');
-            this.numberOfWords.innerHTML = this.words.length;
+            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
         } catch (error) {
             console.error('Error fetching words:', error);
         }
@@ -134,6 +132,7 @@ class WordApp {
     
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
+        return categoryWords;
     }
 
     // Add a new word to the server and update the list of words
@@ -253,7 +252,7 @@ class WordApp {
         }
 
         // Shuffle words and display a subset
-        this.shuffledWords = [...this.words].sort(() => 0.5 - Math.random()).slice(0, quantity);
+        this.shuffledWords = this.handleCategoryChange().sort(() => 0.5 - Math.random()).slice(0, quantity);
         this.displayWords(this.shuffledWords);
     }
 
@@ -317,7 +316,7 @@ class WordApp {
                 await this.fetchWords();
 
                 // Get remaining words of the current category
-                const remainingCategoryWords = this.currentCategory === 'all' ? this.words : this.words.filter(word => word.categoryAdd === this.currentCategory);
+                const remainingCategoryWords = this.handleCategoryChange();
                 console.log('remainingCategoryWords:', remainingCategoryWords);
                 // Get the text of currently displayed words in a unified format
                 const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
