@@ -201,14 +201,26 @@ class WordApp {
             } else {
                 return;
             }
-            // Create and append delete button
-            const deleteButton = document.createElement('button');
-            deleteButton.setAttribute("type", "button")
-            deleteButton.textContent = 'Delete';
-            deleteButton.onclick = (event) => {
-                this.deleteWord(word._id, li); // Delete the word when button is clicked
-            };
-            li.appendChild(deleteButton);
+            // Create and append delete button if this.mainCategory.value is 'review'
+            if (this.mainCategory.value === 'review') {
+                const deleteButton = document.createElement('button');
+                deleteButton.setAttribute("type", "button")
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = (event) => {
+                    this.deleteWord(word._id, li); // Delete the word when button is clicked
+                };
+                li.appendChild(deleteButton);
+            }
+            // Create and append review button if this.mainCategory.value is 'unfamiliar'
+            if (this.mainCategory.value === 'unfamiliar') {
+                const reviewButton = document.createElement('button');
+                reviewButton.setAttribute("type", "button")
+                reviewButton.textContent = 'setReview';
+                reviewButton.onclick = (event) => {
+                    this.setReview(word._id, li); // call setReview function when button is clicked
+                };
+                li.appendChild(reviewButton);
+            }
             wordList.appendChild(li);
         });
     }
@@ -317,7 +329,6 @@ class WordApp {
                 const remainingCategoryWords = this.handleCategoryChange();
                 // Update the number of words display
                 this.numberOfWords.innerHTML = remainingCategoryWords.length;
-                console.log('remainingCategoryWords:', remainingCategoryWords);
                 // Get the text of currently displayed words in a unified format
                 const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                     const text = li.firstChild.textContent;
@@ -345,7 +356,6 @@ class WordApp {
 
                     return !displayedWords.includes(candidateText);
                 });
-                console.log('newWordCandidates:', newWordCandidates);
                 if (newWordCandidates.length > 0) {
                     // Select a new word from the remaining candidates
                     const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
@@ -382,6 +392,67 @@ class WordApp {
             }
         } catch (error) {
             console.error('Error deleting word:', error);
+        }
+    }
+
+    setReview(id, liElement) {
+        this.words.find(word => word._id === id).review = true;
+        const remainingCategoryWords = this.handleCategoryChange();
+        // Get the text of currently displayed words in a unified format
+        const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
+            const text = li.firstChild.textContent;
+            if (this.showMatherLanguageWords && this.showGermanWords) {
+                // Displayed format is matherLanguage - German
+                return text;
+            } else if (this.showMatherLanguageWords) {
+                // Displayed format is matherLanguage only
+                return text.split(' - ')[0]; // Extract matherLanguage part
+            } else if (this.showGermanWords) {
+                // Displayed format is German only
+                return text.split(' - ')[1]; // Extract German part
+            }
+        });
+
+        // Ensure each candidate word text is unified for comparison
+        const newWordCandidates = remainingCategoryWords.filter(word => {
+            const candidateText = this.showMatherLanguageWords && this.showGermanWords
+                ? `${word.matherLanguage} - ${word.german}`
+                : this.showMatherLanguageWords
+                    ? word.matherLanguage
+                    : this.showGermanWords
+                        ? word.german
+                        : `${word.matherLanguage} - ${word.german}`; // Fallback format
+
+            return !displayedWords.includes(candidateText);
+        });
+        if (newWordCandidates.length > 0) {
+            // Select a new word from the remaining candidates
+            const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
+
+            // Create a list item for the new word
+            const newLi = document.createElement('li');
+            if (this.showMatherLanguageWords && this.showGermanWords) {
+                newLi.textContent = `${newWord.matherLanguage} - ${newWord.german}`;
+            } else if (this.showMatherLanguageWords) {
+                newLi.textContent = newWord.matherLanguage;
+            } else if (this.showGermanWords) {
+                newLi.textContent = newWord.german;
+            }
+
+            // Create a Review button and add it to the new word item
+            const reviewButton = document.createElement('button');
+            reviewButton.setAttribute("type", "button");
+            reviewButton.textContent = 'setReview';
+            reviewButton.onclick = () => {
+                this.setReview(newWord._id, newLi);
+            };
+            newLi.appendChild(reviewButton);
+
+            // Replace the current item with the new item
+            liElement.parentNode.replaceChild(newLi, liElement);
+        } else {
+            // If no suitable new words, alert the user
+            alert('There is no more available word in this category');
         }
     }
 }
