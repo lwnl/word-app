@@ -35,8 +35,6 @@ class WordApp {
     constructor(token) {
         this.token = token;
         this.words = [];
-        this.techWords = [];
-        this.dailyWords = [];
         this.showMatherLanguageWords = true;
         this.showGermanWords = false;
         this.shuffledWords = [];
@@ -86,10 +84,10 @@ class WordApp {
             case 'all':
                 switch (subCategoryValue) {
                     case 'tech':
-                        categoryWords = this.techWords;
+                        categoryWords = this.words.filter(word => word.categoryAdd === 'tech');
                         break;
                     case 'daily':
-                        categoryWords = this.dailyWords;
+                        categoryWords = this.words.filter(word => word.categoryAdd === 'daily');
                         break;
                     default:
                         categoryWords = this.words;
