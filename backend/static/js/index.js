@@ -73,7 +73,8 @@ class WordApp {
     }
 
     // Handle category selection and update the displayed words
-    handleCategoryChange() {
+    async handleCategoryChange() {
+        await this.fetchWords();
         this.currentCategory = this.mainCategory.value; // Update the current category
 
         // Update the number of words based on the selected categories
@@ -293,23 +294,6 @@ class WordApp {
         }
     }
 
-    // Display search results in the UI
-    // displaySearchResults(words) {
-    //     const resultsList = document.getElementById('searchResults');
-    //     resultsList.innerHTML = ''; // Clear existing results
-
-    //     if (words.length === 0) {
-    //         resultsList.innerHTML = '<li>No words found</li>';
-    //         return;
-    //     }
-
-    //     words.forEach(word => {
-    //         const listItem = document.createElement('li');
-    //         listItem.innerText = `${word.matherLanguage} - ${word.german}`;
-    //         resultsList.appendChild(listItem);
-    //     });
-    // }
-
     displaySearchResults(words) {
         const resultsContainer = document.getElementById('searchResults');
         resultsContainer.innerHTML = '';  // 清空结果容器
@@ -324,11 +308,13 @@ class WordApp {
                 <option value="tech" ${word.categoryAdd === 'tech' ? 'selected' : ''}>Technical Words</option>
                 <option value="daily" ${word.categoryAdd === 'daily' ? 'selected' : ''}>Daily Words</option>
             `;
+            // 
             categorySelect.addEventListener('change', async (event) => {
                 const newCategory = event.target.value;
                 console.log('Selected new category:', newCategory); // 添加调试日志
 
                 await this.updateWordCategory(word._id, newCategory);
+                this.handleCategoryChange(); // 更新显示
             });
             listItem.appendChild(categorySelect);
 
