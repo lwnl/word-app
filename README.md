@@ -14,6 +14,7 @@
 	•	Multiple users management - ok
 	•	add a function to review words -ok
 	•	add a function to change category 
+	•	let server to check whether a word is already stored in databank on adding words
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  
