@@ -362,7 +362,7 @@ class WordApp {
                 const data = await response.json();
                 console.log('Word updated:', data);
                 // 更新完后，重新获取数据并刷新展示
-                await this.searchWords(); // 假设 searchWords 会重新获取数据并调用 displaySear
+                await this.fetchWords(); 
             }
         } catch (error) {
             console.error('更新单词类别时出错:', error);
