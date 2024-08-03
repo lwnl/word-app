@@ -186,14 +186,13 @@ async function run() {
       }
     });
     // PATCH 路由来更新单词的 review 属性
-    // PATCH 路由来更新单词的 review 属性
-    app.patch('/api/words/:id', authenticateToken, async (req, res) => {
+    // 更新 review 属性的路由
+    app.patch('/api/words/:id/review', authenticateToken, async (req, res) => {
       const id = req.params.id;
       const { review } = req.body;
 
-      console.log('Updating word:', { id, review }); // 添加调试日志
+      console.log('Updating word review:', { id, review });
 
-      // 验证 review 是否为布尔值
       if (typeof review !== 'boolean') {
         return res.status(400).json({ error: 'Invalid review value' });
       }
@@ -202,23 +201,20 @@ async function run() {
         const db = await connectToDb();
         const collection = db.collection('words');
 
-        // 查找并更新指定的单词
         const result = await collection.updateOne(
           { _id: new ObjectId(id), username: req.user.username },
-          { $set: { review: review } }
+          { $set: { review } }
         );
 
         if (result.matchedCount === 0) {
-          // 如果没有匹配的记录，返回 404
           res.status(404).json({ error: 'Word not found' });
         } else {
-          // 查找并返回更新后的单词
           const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
           res.status(200).json(updatedWord);
         }
       } catch (error) {
-        console.error('Error updating word:', error);
-        res.status(500).json({ error: 'Failed to update word' });
+        console.error('Error updating word review:', error);
+        res.status(500).json({ error: 'Failed to update review' });
       }
     });
 

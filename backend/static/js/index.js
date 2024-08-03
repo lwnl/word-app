@@ -454,13 +454,13 @@ class WordApp {
     }
 
     async setReview(id, liElement) {
-        // change the review status of the word with the given id
+        // 先在本地设置单词的 review 状态
         const word = this.words.find(word => word._id === id);
         if (word) {
             word.review = true;
-
+    
             try {
-                const response = await fetch(`http://localhost:3000/api/words/${id}`, {
+                const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -468,12 +468,13 @@ class WordApp {
                     },
                     body: JSON.stringify({ review: true })
                 });
-
+    
                 if (response.ok) {
-                    // 更新UI
                     console.log('Review status updated successfully');
+    
+                    // 更新 UI
                     const remainingCategoryWords = this.handleCategoryChange();
-
+    
                     // 获取当前显示单词的统一格式文本
                     const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                         const text = li.firstChild.textContent;
@@ -488,7 +489,7 @@ class WordApp {
                             return text.split(' - ')[1]; // 提取 German 部分
                         }
                     });
-
+    
                     // 确保每个候选单词文本的统一比较格式
                     const newWordCandidates = remainingCategoryWords.filter(word => {
                         const candidateText = this.showMatherLanguageWords && this.showGermanWords
@@ -498,14 +499,14 @@ class WordApp {
                                 : this.showGermanWords
                                     ? word.german
                                     : `${word.matherLanguage} - ${word.german}`; // 备用格式
-
+    
                         return !displayedWords.includes(candidateText);
                     });
-
+    
                     if (newWordCandidates.length > 0) {
                         // 从剩余候选者中选择一个新单词
                         const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
-
+    
                         // 为新单词创建列表项
                         const newLi = document.createElement('li');
                         if (this.showMatherLanguageWords && this.showGermanWords) {
@@ -515,7 +516,7 @@ class WordApp {
                         } else if (this.showGermanWords) {
                             newLi.textContent = newWord.german;
                         }
-
+    
                         // 创建并添加 Review 按钮到新单词项
                         const reviewButton = document.createElement('button');
                         reviewButton.setAttribute("type", "button");
@@ -524,7 +525,7 @@ class WordApp {
                             this.setReview(newWord._id, newLi);
                         };
                         newLi.appendChild(reviewButton);
-
+    
                         // 替换当前项为新项
                         liElement.parentNode.replaceChild(newLi, liElement);
                     } else {
