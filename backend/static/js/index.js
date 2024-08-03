@@ -293,23 +293,6 @@ class WordApp {
         }
     }
 
-    // Display search results in the UI
-    // displaySearchResults(words) {
-    //     const resultsList = document.getElementById('searchResults');
-    //     resultsList.innerHTML = ''; // Clear existing results
-
-    //     if (words.length === 0) {
-    //         resultsList.innerHTML = '<li>No words found</li>';
-    //         return;
-    //     }
-
-    //     words.forEach(word => {
-    //         const listItem = document.createElement('li');
-    //         listItem.innerText = `${word.matherLanguage} - ${word.german}`;
-    //         resultsList.appendChild(listItem);
-    //     });
-    // }
-
     displaySearchResults(words) {
         const resultsContainer = document.getElementById('searchResults');
         resultsContainer.innerHTML = '';  // 清空结果容器
