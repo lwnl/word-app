@@ -33,6 +33,10 @@ button {
   width: 33ch;
 }
 
+#searchResults select {
+  margin-inline: 0.5rem;
+}
+
 .logout {
   display: flex;
   gap: 0.5rem;
