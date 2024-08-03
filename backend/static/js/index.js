@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            // 清除 token
+            // clear token
             localStorage.removeItem('jwtToken');
             window.location.href = 'http://localhost:3000/login.html';
         });
