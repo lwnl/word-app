@@ -362,7 +362,7 @@ class WordApp {
                 const data = await response.json();
                 console.log('Word updated:', data);
                 // 更新完后，重新获取数据并刷新展示
-                await this.fetchWords(); 
+                await this.fetchWords();
             }
         } catch (error) {
             console.error('更新单词类别时出错:', error);
@@ -383,9 +383,10 @@ class WordApp {
             if (response.status === 204) {
                 // Fetch the updated list of words from the server
                 await this.fetchWords();
-
+                console.log(this.words)
                 // Get remaining words of the current category
                 const remainingCategoryWords = this.handleCategoryChange();
+                console.log('Remaining words:', remainingCategoryWords); // 添加调试日志
                 // Update the number of words display
                 this.numberOfWords.innerHTML = remainingCategoryWords.length;
                 // Get the text of currently displayed words in a unified format
@@ -470,6 +471,7 @@ class WordApp {
 
                 if (response.ok) {
                     // 更新UI
+                    console.log('Review status updated successfully');
                     const remainingCategoryWords = this.handleCategoryChange();
 
                     // 获取当前显示单词的统一格式文本

@@ -150,10 +150,10 @@ async function run() {
       const { matherLanguage, german, categoryAdd } = req.body;
       try {
         const result = await db.collection('words').insertOne({
-          matherLanguage,     
-          german,      
-          categoryAdd,  
-          username: req.user.username, 
+          matherLanguage,
+          german,
+          categoryAdd,
+          username: req.user.username,
           review: false
         });
         res.status(201).json({ id: result.insertedId });
@@ -183,6 +183,42 @@ async function run() {
       } catch (error) {
         console.error('Error searching words:', error);
         res.status(500).json({ error: 'Failed to search words' });
+      }
+    });
+    // PATCH 路由来更新单词的 review 属性
+    // PATCH 路由来更新单词的 review 属性
+    app.patch('/api/words/:id', authenticateToken, async (req, res) => {
+      const id = req.params.id;
+      const { review } = req.body;
+
+      console.log('Updating word:', { id, review }); // 添加调试日志
+
+      // 验证 review 是否为布尔值
+      if (typeof review !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid review value' });
+      }
+
+      try {
+        const db = await connectToDb();
+        const collection = db.collection('words');
+
+        // 查找并更新指定的单词
+        const result = await collection.updateOne(
+          { _id: new ObjectId(id), username: req.user.username },
+          { $set: { review: review } }
+        );
+
+        if (result.matchedCount === 0) {
+          // 如果没有匹配的记录，返回 404
+          res.status(404).json({ error: 'Word not found' });
+        } else {
+          // 查找并返回更新后的单词
+          const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
+          res.status(200).json(updatedWord);
+        }
+      } catch (error) {
+        console.error('Error updating word:', error);
+        res.status(500).json({ error: 'Failed to update word' });
       }
     });
 
