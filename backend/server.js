@@ -42,13 +42,14 @@ async function deleteWord(id) {
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
   const updatedFields = req.body;
+  console.log('Updating word:', { id, updatedFields }); // 添加调试日志
 
   try {
     const db = await connectToDb();
     const collection = db.collection('words');
     const result = await collection.updateOne(
       { _id: new ObjectId(id), username: req.user.username },
-      { $set: updatedFields }
+      { $set: { categoryAdd: updatedFields.categoryAdd } }
     );
 
     if (result.matchedCount === 0) {

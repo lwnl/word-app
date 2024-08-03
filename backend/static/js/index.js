@@ -294,20 +294,96 @@ class WordApp {
     }
 
     // Display search results in the UI
-    displaySearchResults(words) {
-        const resultsList = document.getElementById('searchResults');
-        resultsList.innerHTML = ''; // Clear existing results
+    // displaySearchResults(words) {
+    //     const resultsList = document.getElementById('searchResults');
+    //     resultsList.innerHTML = ''; // Clear existing results
 
-        if (words.length === 0) {
-            resultsList.innerHTML = '<li>No words found</li>';
-            return;
-        }
+    //     if (words.length === 0) {
+    //         resultsList.innerHTML = '<li>No words found</li>';
+    //         return;
+    //     }
+
+    //     words.forEach(word => {
+    //         const listItem = document.createElement('li');
+    //         listItem.innerText = `${word.matherLanguage} - ${word.german}`;
+    //         resultsList.appendChild(listItem);
+    //     });
+    // }
+
+    displaySearchResults(words) {
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '';  // 清空结果容器
 
         words.forEach(word => {
             const listItem = document.createElement('li');
             listItem.innerText = `${word.matherLanguage} - ${word.german}`;
-            resultsList.appendChild(listItem);
+
+            // 添加 category 选择框
+            const categorySelect = document.createElement('select');
+            categorySelect.innerHTML = `
+                <option value="tech" ${word.categoryAdd === 'tech' ? 'selected' : ''}>Technical Words</option>
+                <option value="daily" ${word.categoryAdd === 'daily' ? 'selected' : ''}>Daily Words</option>
+            `;
+            categorySelect.addEventListener('change', async (event) => {
+                const newCategory = event.target.value;
+                console.log('Selected new category:', newCategory); // 添加调试日志
+
+                await this.updateWordCategory(word._id, newCategory);
+            });
+            listItem.appendChild(categorySelect);
+
+            // 添加删除按钮
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.addEventListener('click', async () => {
+                try {
+                    await fetch(`/api/words/${word._id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+                    // 从展示列表中移除词条
+                    listItem.remove();
+                } catch (error) {
+                    console.error('删除单词时出错:', error);
+                }
+            });
+            listItem.appendChild(deleteButton);
+
+            resultsContainer.appendChild(listItem);
         });
+    }
+
+    async updateWordCategory(wordId, newCategory) {
+        console.log('Updating word category:', { wordId, newCategory }); // 添加调试日志
+        try {
+            // 检查令牌是否存在
+            if (!this.token) {
+                console.error('Token is not available');
+                return;
+            }
+
+            const response = await fetch(`/api/words/${wordId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({ categoryAdd: newCategory })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to update word category:', response.statusText);
+            } else {
+                const data = await response.json();
+                console.log('Word updated:', data);
+                // 更新完后，重新获取数据并刷新展示
+                await this.searchWords(); // 假设 searchWords 会重新获取数据并调用 displaySear
+            }
+        } catch (error) {
+            console.error('更新单词类别时出错:', error);
+        }
     }
 
     // Delete a word and replace it with a random word of the same category
@@ -394,7 +470,7 @@ class WordApp {
     }
 
     async setReview(id, liElement) {
-        // 修改本地数据
+        // change the review status of the word with the given id
         const word = this.words.find(word => word._id === id);
         if (word) {
             word.review = true;
