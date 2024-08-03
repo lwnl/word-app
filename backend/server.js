@@ -30,6 +30,8 @@ async function connectToDb() {
   }
 }
 
+
+
 // Delete a word
 async function deleteWord(id) {
   const db = await connectToDb();
