@@ -328,6 +328,7 @@ class WordApp {
                     });
                     // 从展示列表中移除词条
                     listItem.remove();
+                    await this.fetchWords(); // 重新获取数据并刷新展示
                 } catch (error) {
                     console.error('删除单词时出错:', error);
                 }

@@ -1,6 +1,6 @@
 # word-app
 
-## Function list:
+## Functions list:
 
 	•	Store words – ok
 	•	Avoid storing duplicate words – ok
@@ -15,6 +15,7 @@
 	•	add a function to review words -ok
 	•	add a function to change category - ok
 	•	search 里面 删除后的更新问题
+	•	实时更新搜索的匹配情况
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  
