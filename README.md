@@ -15,6 +15,7 @@
 	•	add a function to review words -ok
 	•	add a function to change category - ok
 	•	实时更新搜索的匹配情况
+	•	handleCategoryChange 简化
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  

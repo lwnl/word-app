@@ -45,8 +45,6 @@ class WordApp {
         this.wordList = document.getElementById('wordList');
         this.mainCategory = document.getElementById('mainCategory');
         this.subCategory = document.getElementById('subCategory');
-        document.getElementById('searchQuery').addEventListener('keydown', this.handleKeyDown.bind(this));
-        document.getElementById('searchQuery').addEventListener('input', this.searchWords.bind(this));
     }
 
     async fetchWords() {
@@ -73,8 +71,10 @@ class WordApp {
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
+        document.getElementById('searchQuery').addEventListener('input', () => this.debouncedDisplaySuggestions());
         document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
-        document.getElementById('searchQuery').addEventListener('input', () => this.searchWords());
+        document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
+    
     }
 
     // Handle category selection and update the displayed words
@@ -272,8 +272,10 @@ class WordApp {
     }
 
     // Search for words based on a query and display results
-    async searchWords() {
-        const query = document.getElementById('searchQuery').value.trim(); // Get the search query
+    async searchWords(query) {
+        if (!query) {
+            query = document.getElementById('searchQuery').value.trim();
+        }
 
         if (!query) {
             this.displaySearchResults([]);
@@ -294,7 +296,6 @@ class WordApp {
 
             const words = await response.json();
             this.displaySearchResults(words);
-            this.displaySuggestions(words);
         } catch (error) {
             console.error('Error searching words:', error);
         }
@@ -346,31 +347,56 @@ class WordApp {
         });
     }
 
-    displaySuggestions(words) {
+    debouncedDisplaySuggestions() {
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
+        this.debounceTimeout = setTimeout(() => this.displaySuggestions(), 300); // 延迟300ms
+    }
+
+    displaySuggestions() {
+        const query = document.getElementById('searchQuery').value.trim();
         const suggestionsContainer = document.getElementById('suggestions');
         suggestionsContainer.innerHTML = '';
-        this.suggestions = words;
-        this.selectedIndex = -1;
+        this.suggestions = []; // 重置建议列表
 
-        words.forEach((word, index) => {
-            const suggestionItem = document.createElement('div');
-            suggestionItem.textContent = word.matherLanguage; // 根据需要调整显示内容
-            suggestionItem.classList.add('suggestion-item');
-            suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
-            suggestionsContainer.appendChild(suggestionItem);
-        });
-
-        if (words.length > 0) {
-            suggestionsContainer.style.display = 'block';
-        } else {
+        if (!query) {
             suggestionsContainer.style.display = 'none';
+            return;
         }
+
+        // 从 API 获取匹配的单词
+        fetch(`http://localhost:3000/api/words/search?query=${query}`, {
+            headers: {
+                'Authorization': `Bearer ${this.token}`
+            }
+        })
+        .then(response => response.json())
+        .then(words => {
+            this.suggestions = words.filter(word =>
+                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                word.german.toLowerCase().includes(query.toLowerCase())
+            );
+
+            this.selectedIndex = -1;
+            this.suggestions.forEach((word, index) => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.textContent = `${word.matherLanguage} - ${word.german}`;
+                suggestionItem.classList.add('suggestion-item');
+                suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
+                suggestionsContainer.appendChild(suggestionItem);
+            });
+
+            suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error fetching suggestions:', error));
     }
 
     selectSuggestion(index) {
         const queryInput = document.getElementById('searchQuery');
-        queryInput.value = this.suggestions[index].matherLanguage; // 根据需要调整锁定内容
-        this.clearSuggestions();
+        queryInput.value = this.suggestions[index].matherLanguage; // 选择建议的母语
+        this.searchWords(queryInput.value); // 触发搜索
+        this.clearSuggestions(); // 清除建议
     }
 
     clearSuggestions() {
@@ -415,7 +441,6 @@ class WordApp {
             }
         });
     }
-
 
     async updateWordCategory(wordId, newCategory) {
         console.log('Updating word category:', { wordId, newCategory }); // 添加调试日志
