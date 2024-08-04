@@ -45,3 +45,24 @@ button {
     margin-left: auto;
   }
 }
+
+.suggestions {
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  background-color: white;
+  width: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestion-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover, .suggestion-item.selected {
+  background-color: #eee;
+}

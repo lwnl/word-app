@@ -36,6 +36,8 @@ class WordApp {
         this.token = token;
         this.words = [];
         this.shuffledWords = [];
+        this.selectedIndex = -1;
+        this.suggestions = [];
         this.currentCategory = 'all'; // Initialize the current category. An value must be given!
         this.showMatherLanguageWords = true;
         this.showGermanWords = false;
@@ -43,6 +45,8 @@ class WordApp {
         this.wordList = document.getElementById('wordList');
         this.mainCategory = document.getElementById('mainCategory');
         this.subCategory = document.getElementById('subCategory');
+        document.getElementById('searchQuery').addEventListener('keydown', this.handleKeyDown.bind(this));
+        document.getElementById('searchQuery').addEventListener('input', this.searchWords.bind(this));
     }
 
     async fetchWords() {
@@ -70,6 +74,7 @@ class WordApp {
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
         document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
+        document.getElementById('searchQuery').addEventListener('input', () => this.searchWords());
     }
 
     // Handle category selection and update the displayed words
@@ -272,13 +277,14 @@ class WordApp {
 
         if (!query) {
             this.displaySearchResults([]);
+            this.clearSuggestions();
             return;
         }
 
         try {
             const response = await fetch(`http://localhost:3000/api/words/search?query=${query}`, {
                 headers: {
-                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
+                    'Authorization': `Bearer ${this.token}`
                 }
             });
             if (!response.ok) {
@@ -287,7 +293,8 @@ class WordApp {
             }
 
             const words = await response.json();
-            this.displaySearchResults(words); // Display search results
+            this.displaySearchResults(words);
+            this.displaySuggestions(words);
         } catch (error) {
             console.error('Error searching words:', error);
         }
@@ -295,7 +302,7 @@ class WordApp {
 
     displaySearchResults(words) {
         const resultsContainer = document.getElementById('searchResults');
-        resultsContainer.innerHTML = '';  // 清空结果容器
+        resultsContainer.innerHTML = ''; // 清空结果容器
 
         words.forEach(word => {
             const listItem = document.createElement('li');
@@ -339,15 +346,80 @@ class WordApp {
         });
     }
 
+    displaySuggestions(words) {
+        const suggestionsContainer = document.getElementById('suggestions');
+        suggestionsContainer.innerHTML = '';
+        this.suggestions = words;
+        this.selectedIndex = -1;
+
+        words.forEach((word, index) => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.textContent = word.matherLanguage; // 根据需要调整显示内容
+            suggestionItem.classList.add('suggestion-item');
+            suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
+            suggestionsContainer.appendChild(suggestionItem);
+        });
+
+        if (words.length > 0) {
+            suggestionsContainer.style.display = 'block';
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
+    }
+
+    selectSuggestion(index) {
+        const queryInput = document.getElementById('searchQuery');
+        queryInput.value = this.suggestions[index].matherLanguage; // 根据需要调整锁定内容
+        this.clearSuggestions();
+    }
+
+    clearSuggestions() {
+        const suggestionsContainer = document.getElementById('suggestions');
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.style.display = 'none';
+        this.suggestions = [];
+        this.selectedIndex = -1;
+    }
+
+    handleKeyDown(event) {
+        const suggestionsContainer = document.getElementById('suggestions');
+        if (suggestionsContainer.style.display === 'none') return;
+
+        switch (event.key) {
+            case 'ArrowDown':
+                this.selectedIndex = (this.selectedIndex + 1) % this.suggestions.length;
+                this.highlightSuggestion();
+                break;
+            case 'ArrowUp':
+                this.selectedIndex = (this.selectedIndex - 1 + this.suggestions.length) % this.suggestions.length;
+                this.highlightSuggestion();
+                break;
+            case 'Enter':
+                if (this.selectedIndex >= 0) {
+                    this.selectSuggestion(this.selectedIndex);
+                }
+                break;
+            case 'Escape':
+                this.clearSuggestions();
+                break;
+        }
+    }
+
+    highlightSuggestion() {
+        const suggestionsContainer = document.getElementById('suggestions');
+        Array.from(suggestionsContainer.children).forEach((item, index) => {
+            if (index === this.selectedIndex) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+
+
     async updateWordCategory(wordId, newCategory) {
         console.log('Updating word category:', { wordId, newCategory }); // 添加调试日志
         try {
-            // 检查令牌是否存在
-            if (!this.token) {
-                console.error('Token is not available');
-                return;
-            }
-
             const response = await fetch(`/api/words/${wordId}`, {
                 method: 'PATCH',
                 headers: {
@@ -459,7 +531,7 @@ class WordApp {
         const word = this.words.find(word => word._id === id);
         if (word) {
             word.review = true;
-    
+
             try {
                 const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
                     method: 'PATCH',
@@ -469,13 +541,13 @@ class WordApp {
                     },
                     body: JSON.stringify({ review: true })
                 });
-    
+
                 if (response.ok) {
                     console.log('Review status updated successfully');
-    
+
                     // 更新 UI
                     const remainingCategoryWords = this.handleCategoryChange();
-    
+
                     // 获取当前显示单词的统一格式文本
                     const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
                         const text = li.firstChild.textContent;
@@ -490,7 +562,7 @@ class WordApp {
                             return text.split(' - ')[1]; // 提取 German 部分
                         }
                     });
-    
+
                     // 确保每个候选单词文本的统一比较格式
                     const newWordCandidates = remainingCategoryWords.filter(word => {
                         const candidateText = this.showMatherLanguageWords && this.showGermanWords
@@ -500,14 +572,14 @@ class WordApp {
                                 : this.showGermanWords
                                     ? word.german
                                     : `${word.matherLanguage} - ${word.german}`; // 备用格式
-    
+
                         return !displayedWords.includes(candidateText);
                     });
-    
+
                     if (newWordCandidates.length > 0) {
                         // 从剩余候选者中选择一个新单词
                         const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
-    
+
                         // 为新单词创建列表项
                         const newLi = document.createElement('li');
                         if (this.showMatherLanguageWords && this.showGermanWords) {
@@ -517,7 +589,7 @@ class WordApp {
                         } else if (this.showGermanWords) {
                             newLi.textContent = newWord.german;
                         }
-    
+
                         // 创建并添加 Review 按钮到新单词项
                         const reviewButton = document.createElement('button');
                         reviewButton.setAttribute("type", "button");
@@ -526,7 +598,7 @@ class WordApp {
                             this.setReview(newWord._id, newLi);
                         };
                         newLi.appendChild(reviewButton);
-    
+
                         // 替换当前项为新项
                         liElement.parentNode.replaceChild(newLi, liElement);
                     } else {
