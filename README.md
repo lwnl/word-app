@@ -13,7 +13,8 @@
 	•	logout: switch index page to login page – ok
 	•	Multiple users management - ok
 	•	add a function to review words -ok
-	•	add a function to change category 
+	•	add a function to change category - ok
+	•	search 里面 删除后的更新问题
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  
