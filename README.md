@@ -16,6 +16,7 @@
 	•	add a function to change category - ok
 	•	实时更新搜索的匹配情况
 	•	handleCategoryChange 简化
+	•	把前端的功能尽量转移到数据库中进行
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  

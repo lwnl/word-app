@@ -74,7 +74,7 @@ class WordApp {
         document.getElementById('searchQuery').addEventListener('input', () => this.debouncedDisplaySuggestions());
         document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
         document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
-    
+
     }
 
     // Handle category selection and update the displayed words
@@ -365,31 +365,31 @@ class WordApp {
             return;
         }
 
-        // 从 API 获取匹配的单词
-        fetch(`http://localhost:3000/api/words/search?query=${query}`, {
+        // 从 API 获取该用户名下的所有单词
+        fetch(`http://localhost:3000/api/words?username=${this.username}`, {
             headers: {
                 'Authorization': `Bearer ${this.token}`
             }
         })
-        .then(response => response.json())
-        .then(words => {
-            this.suggestions = words.filter(word =>
-                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
-                word.german.toLowerCase().includes(query.toLowerCase())
-            );
+            .then(response => response.json())
+            .then(words => {
+                this.suggestions = words.filter(word =>
+                    word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                    word.german.toLowerCase().includes(query.toLowerCase())
+                );
+                console.log('filtered words:', this.suggestions); // 添加调试日志
+                this.selectedIndex = -1;
+                this.suggestions.forEach((word, index) => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.textContent = `${word.matherLanguage} - ${word.german}`;
+                    suggestionItem.classList.add('suggestion-item');
+                    suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
+                    suggestionsContainer.appendChild(suggestionItem);
+                });
 
-            this.selectedIndex = -1;
-            this.suggestions.forEach((word, index) => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.textContent = `${word.matherLanguage} - ${word.german}`;
-                suggestionItem.classList.add('suggestion-item');
-                suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
-                suggestionsContainer.appendChild(suggestionItem);
-            });
-
-            suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
-        })
-        .catch(error => console.error('Error fetching suggestions:', error));
+                suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
+            })
+            .catch(error => console.error('Error fetching suggestions:', error));
     }
 
     selectSuggestion(index) {
