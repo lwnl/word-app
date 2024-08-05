@@ -47,6 +47,7 @@ button {
 }
 
 .suggestions {
+  display: none;
   border: 1px solid #ccc;
   max-height: 200px;
   overflow-y: auto;
