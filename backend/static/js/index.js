@@ -94,24 +94,22 @@ class WordApp {
             all: {
                 tech: word => word.categoryAdd === 'tech',
                 daily: word => word.categoryAdd === 'daily',
-                default: () => true
+                all: () => true
             },
             review: {
                 tech: word => word.review === true && word.categoryAdd === 'tech',
                 daily: word => word.review === true && word.categoryAdd === 'daily',
-                default: word => word.review === true
+                all: word => word.review === true
             },
             unfamiliar: {
                 tech: word => word.review === false && word.categoryAdd === 'tech',
                 daily: word => word.review === false && word.categoryAdd === 'daily',
-                default: word => word.review === false
+                all: word => word.review === false
             }
         };
     
         // Get the filter function for the current category and sub-category
-        const filterFunction = (filters[this.currentCategory] && filters[this.currentCategory][subCategoryValue]) ||
-                               (filters[this.currentCategory] && filters[this.currentCategory].default) ||
-                               filters.all.default;
+        const filterFunction = filters[this.currentCategory] && filters[this.currentCategory][subCategoryValue]
     
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
@@ -509,6 +507,8 @@ class WordApp {
 
                     return !displayedWords.includes(candidateText);
                 });
+
+                // If there are suitable new words
                 if (newWordCandidates.length > 0) {
                     // Select a new word from the remaining candidates
                     const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
