@@ -72,9 +72,15 @@ class WordApp {
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
         document.getElementById('searchQuery').addEventListener('input', () => this.debouncedDisplaySuggestions());
-        document.getElementById('searchButton').addEventListener('click', () => this.searchWords());
+        document.getElementById('clearButton').addEventListener('click', () => this.clearResult());
         document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
 
+    }
+
+    clearResult() {
+        document.getElementById('searchResults').innerHTML = '';
+        document.getElementById('searchQuery').value = '';
+        document.getElementById('suggestions').innerHTML = '';
     }
 
     // Handle category selection and update the displayed words
