@@ -86,59 +86,36 @@ class WordApp {
     // Handle category selection and update the displayed words
     handleCategoryChange() {
         this.currentCategory = this.mainCategory.value; // Update the current category
-
-        // Update the number of words based on the selected categories
+    
         const subCategoryValue = this.subCategory.value;
-        let categoryWords;
-
-        switch (this.currentCategory) {
-            case 'all':
-                switch (subCategoryValue) {
-                    case 'tech':
-                        categoryWords = this.words.filter(word => word.categoryAdd === 'tech');
-                        break;
-                    case 'daily':
-                        categoryWords = this.words.filter(word => word.categoryAdd === 'daily');
-                        break;
-                    default:
-                        categoryWords = this.words;
-                        break;
-                }
-                break;
-
-            case 'review':
-                switch (subCategoryValue) {
-                    case 'tech':
-                        categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'tech');
-                        break;
-                    case 'daily':
-                        categoryWords = this.words.filter(word => word.review === true && word.categoryAdd === 'daily');
-                        break;
-                    default:
-                        categoryWords = this.words.filter(word => word.review === true);
-                        break;
-                }
-                break;
-
-            case 'unfamiliar':
-                switch (subCategoryValue) {
-                    case 'tech':
-                        categoryWords = this.words.filter(word => word.review === false && word.categoryAdd === 'tech');
-                        break;
-                    case 'daily':
-                        categoryWords = this.words.filter(word => word.review === false && word.categoryAdd === 'daily');
-                        break;
-                    default:
-                        categoryWords = this.words.filter(word => word.review === false);
-                        break;
-                }
-                break;
-
-            default:
-                categoryWords = this.words;
-                break;
-        }
-
+    
+        // Define the filter conditions based on the current category and sub-category
+        const filters = {
+            all: {
+                tech: word => word.categoryAdd === 'tech',
+                daily: word => word.categoryAdd === 'daily',
+                default: () => true
+            },
+            review: {
+                tech: word => word.review === true && word.categoryAdd === 'tech',
+                daily: word => word.review === true && word.categoryAdd === 'daily',
+                default: word => word.review === true
+            },
+            unfamiliar: {
+                tech: word => word.review === false && word.categoryAdd === 'tech',
+                daily: word => word.review === false && word.categoryAdd === 'daily',
+                default: word => word.review === false
+            }
+        };
+    
+        // Get the filter function for the current category and sub-category
+        const filterFunction = (filters[this.currentCategory] && filters[this.currentCategory][subCategoryValue]) ||
+                               (filters[this.currentCategory] && filters[this.currentCategory].default) ||
+                               filters.all.default;
+    
+        // Filter the words based on the selected filter function
+        const categoryWords = this.words.filter(filterFunction);
+    
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
         return categoryWords;
