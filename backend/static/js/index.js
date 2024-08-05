@@ -109,7 +109,7 @@ class WordApp {
         };
     
         // Get the filter function for the current category and sub-category
-        const filterFunction = filters[this.currentCategory] && filters[this.currentCategory][subCategoryValue]
+        const filterFunction = filters[this.currentCategory][subCategoryValue]
     
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
