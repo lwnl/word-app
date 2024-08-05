@@ -359,44 +359,56 @@ class WordApp {
         const suggestionsContainer = document.getElementById('suggestions');
         suggestionsContainer.innerHTML = '';
         this.suggestions = []; // 重置建议列表
-
+    
         if (!query) {
             suggestionsContainer.style.display = 'none';
             return;
         }
-
+    
         // 从 API 获取该用户名下的所有单词
         fetch(`http://localhost:3000/api/words?username=${this.username}`, {
             headers: {
                 'Authorization': `Bearer ${this.token}`
             }
         })
-            .then(response => response.json())
-            .then(words => {
-                this.suggestions = words.filter(word =>
-                    word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
-                    word.german.toLowerCase().includes(query.toLowerCase())
-                );
-                console.log('filtered words:', this.suggestions); // 添加调试日志
-                this.selectedIndex = -1;
-                this.suggestions.forEach((word, index) => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.textContent = `${word.matherLanguage} - ${word.german}`;
-                    suggestionItem.classList.add('suggestion-item');
-                    suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
-                    suggestionsContainer.appendChild(suggestionItem);
-                });
-
-                suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
-            })
-            .catch(error => console.error('Error fetching suggestions:', error));
+        .then(response => response.json())
+        .then(words => {
+            // 过滤包含输入字符的单词
+            this.suggestions = words.filter(word =>
+                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                word.german.toLowerCase().includes(query.toLowerCase())
+            );
+            console.log('filtered words:', this.suggestions); // 添加调试日志
+            this.selectedIndex = -1;
+            this.suggestions.forEach((word, index) => {
+                const suggestionItem = document.createElement('div');
+                // 根据匹配属性设置文本内容
+                if (word.matherLanguage.toLowerCase().includes(query.toLowerCase())) {
+                    suggestionItem.textContent = word.matherLanguage;
+                } else if (word.german.toLowerCase().includes(query.toLowerCase())) {
+                    suggestionItem.textContent = word.german;
+                }
+                suggestionItem.classList.add('suggestion-item');
+                suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
+                suggestionsContainer.appendChild(suggestionItem);
+            });
+    
+            suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error fetching suggestions:', error));
     }
 
     selectSuggestion(index) {
         const queryInput = document.getElementById('searchQuery');
-        queryInput.value = this.suggestions[index].matherLanguage; // 选择建议的母语
-        this.searchWords(queryInput.value); // 触发搜索
-        this.clearSuggestions(); // 清除建议
+        const selectedWord = this.suggestions[index];
+        // 根据匹配属性设置输入框的值
+        if (selectedWord.matherLanguage.toLowerCase().includes(queryInput.value.toLowerCase())) {
+            queryInput.value = selectedWord.matherLanguage;
+        } else if (selectedWord.german.toLowerCase().includes(queryInput.value.toLowerCase())) {
+            queryInput.value = selectedWord.german;
+        }
+        this.searchWords(queryInput.value); // 使用选择的单词进行搜索
+        this.clearSuggestions();
     }
 
     clearSuggestions() {
