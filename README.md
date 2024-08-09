@@ -16,7 +16,7 @@
 	•	Multiple users management - ok
 	•	add a function to review words -ok
 	•	add a function to change category - ok
-	•	把前端的功能尽量转移到数据库中进行
+	•	学习和复习单词以单个单词形式显现
 	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
 
  
