@@ -86,9 +86,9 @@ class WordApp {
     // Handle category selection and update the displayed words
     handleCategoryChange() {
         this.currentCategory = this.mainCategory.value; // Update the current category
-
+    
         const subCategoryValue = this.subCategory.value;
-
+    
         // Define the filter conditions based on the current category and sub-category
         const filters = {
             all: {
@@ -107,13 +107,13 @@ class WordApp {
                 all: word => word.review === false
             }
         };
-
+    
         // Get the filter function for the current category and sub-category
         const filterFunction = filters[this.currentCategory][subCategoryValue]
-
+    
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
-
+    
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
         return categoryWords;
@@ -336,43 +336,43 @@ class WordApp {
         const suggestionsContainer = document.getElementById('suggestions');
         suggestionsContainer.innerHTML = '';
         this.suggestions = []; // 重置建议列表
-
+    
         if (!query) {
             suggestionsContainer.style.display = 'none';
             return;
         }
-
+    
         // 从 API 获取该用户名下的所有单词
         fetch(`http://localhost:3000/api/words?username=${this.username}`, {
             headers: {
                 'Authorization': `Bearer ${this.token}`
             }
         })
-            .then(response => response.json())
-            .then(words => {
-                // 过滤包含输入字符的单词
-                this.suggestions = words.filter(word =>
-                    word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
-                    word.german.toLowerCase().includes(query.toLowerCase())
-                );
-                console.log('filtered words:', this.suggestions); // 添加调试日志
-                this.selectedIndex = -1;
-                this.suggestions.forEach((word, index) => {
-                    const suggestionItem = document.createElement('div');
-                    // 根据匹配属性设置文本内容
-                    if (word.matherLanguage.toLowerCase().includes(query.toLowerCase())) {
-                        suggestionItem.textContent = word.matherLanguage;
-                    } else if (word.german.toLowerCase().includes(query.toLowerCase())) {
-                        suggestionItem.textContent = word.german;
-                    }
-                    suggestionItem.classList.add('suggestion-item');
-                    suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
-                    suggestionsContainer.appendChild(suggestionItem);
-                });
-
-                suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
-            })
-            .catch(error => console.error('Error fetching suggestions:', error));
+        .then(response => response.json())
+        .then(words => {
+            // 过滤包含输入字符的单词
+            this.suggestions = words.filter(word =>
+                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                word.german.toLowerCase().includes(query.toLowerCase())
+            );
+            console.log('filtered words:', this.suggestions); // 添加调试日志
+            this.selectedIndex = -1;
+            this.suggestions.forEach((word, index) => {
+                const suggestionItem = document.createElement('div');
+                // 根据匹配属性设置文本内容
+                if (word.matherLanguage.toLowerCase().includes(query.toLowerCase())) {
+                    suggestionItem.textContent = word.matherLanguage;
+                } else if (word.german.toLowerCase().includes(query.toLowerCase())) {
+                    suggestionItem.textContent = word.german;
+                }
+                suggestionItem.classList.add('suggestion-item');
+                suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
+                suggestionsContainer.appendChild(suggestionItem);
+            });
+    
+            suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error fetching suggestions:', error));
     }
 
     selectSuggestion(index) {
@@ -470,9 +470,70 @@ class WordApp {
             if (response.status === 204) {
                 // Fetch the updated list of words from the server
                 await this.fetchWords();
+                console.log(this.words)
                 // Get remaining words of the current category
-                this.handleCategoryChange();
-                liElement.parentNode.removeChild(liElement);
+                const remainingCategoryWords = this.handleCategoryChange();
+                console.log('Remaining words:', remainingCategoryWords); // 添加调试日志
+                // Update the number of words display
+                this.numberOfWords.innerHTML = remainingCategoryWords.length;
+                // Get the text of currently displayed words in a unified format
+                const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
+                    const text = li.firstChild.textContent;
+                    if (this.showMatherLanguageWords && this.showGermanWords) {
+                        // Displayed format is matherLanguage - German
+                        return text;
+                    } else if (this.showMatherLanguageWords) {
+                        // Displayed format is matherLanguage only
+                        return text.split(' - ')[0]; // Extract matherLanguage part
+                    } else if (this.showGermanWords) {
+                        // Displayed format is German only
+                        return text.split(' - ')[1]; // Extract German part
+                    }
+                });
+
+                // Ensure each candidate word text is unified for comparison
+                const newWordCandidates = remainingCategoryWords.filter(word => {
+                    const candidateText = this.showMatherLanguageWords && this.showGermanWords
+                        ? `${word.matherLanguage} - ${word.german}`
+                        : this.showMatherLanguageWords
+                            ? word.matherLanguage
+                            : this.showGermanWords
+                                ? word.german
+                                : `${word.matherLanguage} - ${word.german}`; // Fallback format
+
+                    return !displayedWords.includes(candidateText);
+                });
+
+                // If there are suitable new words
+                if (newWordCandidates.length > 0) {
+                    // Select a new word from the remaining candidates
+                    const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
+
+                    // Create a list item for the new word
+                    const newLi = document.createElement('li');
+                    if (this.showMatherLanguageWords && this.showGermanWords) {
+                        newLi.textContent = `${newWord.matherLanguage} - ${newWord.german}`;
+                    } else if (this.showMatherLanguageWords) {
+                        newLi.textContent = newWord.matherLanguage;
+                    } else if (this.showGermanWords) {
+                        newLi.textContent = newWord.german;
+                    }
+
+                    // Create a delete button and add it to the new word item
+                    const deleteButton = document.createElement('button');
+                    deleteButton.setAttribute("type", "button");
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = () => {
+                        this.deleteWord(newWord._id, newLi);
+                    };
+                    newLi.appendChild(deleteButton);
+
+                    // Replace the deleted word item with the new word item
+                    liElement.parentNode.replaceChild(newLi, liElement);
+                } else {
+                    // If no suitable new words, simply remove the item
+                    liElement.parentNode.removeChild(liElement);
+                }
             } else {
                 console.error('Failed to delete word');
             }
@@ -486,9 +547,7 @@ class WordApp {
         const word = this.words.find(word => word._id === id);
         if (word) {
             word.review = true;
-            liElement.parentNode.removeChild(liElement);
-            // 更新 UI
-            this.handleCategoryChange();
+
             try {
                 const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
                     method: 'PATCH',
@@ -502,7 +561,66 @@ class WordApp {
                 if (response.ok) {
                     console.log('Review status updated successfully');
 
+                    // 更新 UI
+                    const remainingCategoryWords = this.handleCategoryChange();
 
+                    // 获取当前显示单词的统一格式文本
+                    const displayedWords = Array.from(document.getElementById('wordList').children).map(li => {
+                        const text = li.firstChild.textContent;
+                        if (this.showMatherLanguageWords && this.showGermanWords) {
+                            // 显示格式为 matherLanguage - German
+                            return text;
+                        } else if (this.showMatherLanguageWords) {
+                            // 显示格式为 matherLanguage 仅
+                            return text.split(' - ')[0]; // 提取 matherLanguage 部分
+                        } else if (this.showGermanWords) {
+                            // 显示格式为 German 仅
+                            return text.split(' - ')[1]; // 提取 German 部分
+                        }
+                    });
+
+                    // 确保每个候选单词文本的统一比较格式
+                    const newWordCandidates = remainingCategoryWords.filter(word => {
+                        const candidateText = this.showMatherLanguageWords && this.showGermanWords
+                            ? `${word.matherLanguage} - ${word.german}`
+                            : this.showMatherLanguageWords
+                                ? word.matherLanguage
+                                : this.showGermanWords
+                                    ? word.german
+                                    : `${word.matherLanguage} - ${word.german}`; // 备用格式
+
+                        return !displayedWords.includes(candidateText);
+                    });
+
+                    if (newWordCandidates.length > 0) {
+                        // 从剩余候选者中选择一个新单词
+                        const newWord = newWordCandidates[Math.floor(Math.random() * newWordCandidates.length)];
+
+                        // 为新单词创建列表项
+                        const newLi = document.createElement('li');
+                        if (this.showMatherLanguageWords && this.showGermanWords) {
+                            newLi.textContent = `${newWord.matherLanguage} - ${newWord.german}`;
+                        } else if (this.showMatherLanguageWords) {
+                            newLi.textContent = newWord.matherLanguage;
+                        } else if (this.showGermanWords) {
+                            newLi.textContent = newWord.german;
+                        }
+
+                        // 创建并添加 Review 按钮到新单词项
+                        const reviewButton = document.createElement('button');
+                        reviewButton.setAttribute("type", "button");
+                        reviewButton.textContent = 'setReview';
+                        reviewButton.onclick = () => {
+                            this.setReview(newWord._id, newLi);
+                        };
+                        newLi.appendChild(reviewButton);
+
+                        // 替换当前项为新项
+                        liElement.parentNode.replaceChild(newLi, liElement);
+                    } else {
+                        // 如果没有合适的新单词，直接移除项
+                        liElement.parentNode.removeChild(liElement);
+                    }
                 } else {
                     const errorText = await response.text();
                     console.error(`Failed to update review status: ${errorText}`);
