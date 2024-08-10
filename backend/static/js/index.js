@@ -121,9 +121,9 @@ class WordApp {
 
     // Add a new word to the server and update the list of words
     async addWord() {
-        const matherLanguage = document.getElementById('matherLanguage').value; // Get the matherLanguage word
-        const german = document.getElementById('german').value; // Get the German word
-        const categoryAdd = document.getElementById('categoryAdd').value; // Get the category
+        let matherLanguage = document.getElementById('matherLanguage').value; // Get the matherLanguage word
+        let german = document.getElementById('german').value; // Get the German word
+        let categoryAdd = document.getElementById('categoryAdd').value; // Get the category
 
         // Validate input fields
         if (!matherLanguage || !german || !categoryAdd) {
@@ -156,8 +156,10 @@ class WordApp {
             });
 
             if (response.ok) {
-                const data = await response.json();
                 alert('Word added successfully');
+                // Clear the input fields after successfully adding the word
+                document.getElementById('matherLanguage').value = '';
+                document.getElementById('german').value = '';
                 this.fetchWords(); // Refresh the word list
             } else {
                 const errorData = await response.text(); // 获取文本而不是 JSON
