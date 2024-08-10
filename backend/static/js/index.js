@@ -252,6 +252,8 @@ class WordApp {
         // Shuffle words and display a subset
         this.shuffledWords = this.handleCategoryChange().sort(() => 0.5 - Math.random()).slice(0, quantity);
         this.displayWords(this.shuffledWords);
+        // Clear the input field after displaying the words
+        quantityInput.value = ''; 
     }
 
     // Search for words based on a query and display results
