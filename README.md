@@ -16,8 +16,11 @@
 	•	Multiple users management - ok
 	•	add a function to review words -ok
 	•	add a function to change category - ok
+	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY - ok
 	•	学习和复习单词以单个单词形式显现
 	•	点击添加，点击获取单词后，清空输入框
-	•	bcrypt encryption, JWT (JSON Web Token) and SECRET_KEY 
+	•	查找功能，点击删除后，查找框自动清空
+	•	在添加单词时增加匹配和提示功能
+	•	查找后，有更改功能
 
  
