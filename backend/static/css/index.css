@@ -31,6 +31,8 @@ button {
 
 #searchQuery {
   width: 33ch;
+  text-align: left;
+  padding: 2px;
 }
 
 #searchResults select {

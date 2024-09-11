@@ -4,6 +4,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const uuid = require('uuid');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -135,7 +136,15 @@ async function run() {
         }
 
         // Generate a new token
-        const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign(
+          {
+              username: user.username, 
+              jti: uuid.v4(), // each time new JWT ID
+          },
+          SECRET_KEY, 
+          { expiresIn: '1h' }
+      );
+      
         res.json({ token });
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });

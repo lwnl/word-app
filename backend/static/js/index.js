@@ -1,14 +1,14 @@
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('jwtToken'); // 确保 token 是从登录中获取并保存的
+    const token = localStorage.getItem('jwtToken'); // Ensure the token is retrieved and stored from login
 
-    // 确保 token 存在后再初始化 WordApp 实例
+    // Initialize WordApp instance only if the token exists
     if (token) {
-        const wordApp = new WordApp(token); // 将 token 传递给 WordApp 实例
+        const wordApp = new WordApp(token); 
         wordApp.init();
     } else {
         console.error('No token found. Please log in first.');
-        window.location.href = 'http://localhost:3000/login.html'; // 或者其他适当的处理
+        window.location.href = 'http://localhost:3000/login.html'; //
     }
 
     // Display username in the span
@@ -16,16 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
         usernameElement.textContent = username;
-    } else {
-        usernameElement.textContent = 'Guest';
-    }
+    } 
 
     // Add event listener for the logout button
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            // clear token
+            // clear token and username
             localStorage.removeItem('jwtToken');
+            localStorage.removeItem('username');
             window.location.href = 'http://localhost:3000/login.html';
         });
     }

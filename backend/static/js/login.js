@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
+                    console.log('current token is',data.token)
                     localStorage.setItem('jwtToken', data.token); // Save token
                     localStorage.setItem('username', username); // Save username
                     window.location.href = 'http://localhost:3000/index.html'; // Redirect to homepage
