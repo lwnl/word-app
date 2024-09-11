@@ -5,6 +5,8 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
+const https = require('https');
+const fs = require('fs');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -250,6 +252,16 @@ async function run() {
 
 run().catch(console.dir);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// app.listen(PORT, () => {
+//   console.log(`Server is running on http://localhost:${PORT}`);
+// });
+
+// HTTPS server configuration
+const options = {
+  key: fs.readFileSync('server.key'),  
+  cert: fs.readFileSync('server.cert') 
+};
+
+https.createServer(options, app).listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
 });

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
-    // 处理登录
+    // login event
     loginBtn.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch('https://localhost:3000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    console.log('current token is',data.token)
+                    console.log('current token is: ',data.token)
                     localStorage.setItem('jwtToken', data.token); // Save token
                     localStorage.setItem('username', username); // Save username
-                    window.location.href = 'http://localhost:3000/index.html'; // Redirect to homepage
+                    window.location.href = 'https://localhost:3000/index.html'; // Redirect to homepage
                 } else {
                     alert('Login failed: No token returned');
                 }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('https://localhost:3000/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

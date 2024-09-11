@@ -6,9 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         const wordApp = new WordApp(token); 
         wordApp.init();
+        // localStorage.removeItem('jwtToken');
     } else {
         console.error('No token found. Please log in first.');
-        window.location.href = 'http://localhost:3000/login.html'; //
+        window.location.href = 'https://localhost:3000/login.html'; //
     }
 
     // Display username in the span
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
         usernameElement.textContent = username;
+        // localStorage.removeItem('username');
     } 
 
     // Add event listener for the logout button
@@ -25,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // clear token and username
             localStorage.removeItem('jwtToken');
             localStorage.removeItem('username');
-            window.location.href = 'http://localhost:3000/login.html';
+            window.location.href = 'https://localhost:3000/login.html';
         });
     }
 });
@@ -48,7 +50,7 @@ class WordApp {
 
     async fetchWords() {
         try {
-            const response = await fetch('http://localhost:3000/api/words', {
+            const response = await fetch('https://localhost:3000/api/words', {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }
@@ -85,7 +87,7 @@ class WordApp {
             // 更新 UI
             this.handleCategoryChange();
             try {
-                const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
+                const response = await fetch(`https://localhost:3000/api/words/${id}/review`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -174,7 +176,7 @@ class WordApp {
 
         try {
             // Check if the word already exists
-            const fetchResponse = await fetch('http://localhost:3000/api/words', {
+            const fetchResponse = await fetch('https://localhost:3000/api/words', {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }
@@ -187,7 +189,7 @@ class WordApp {
             }
 
             // Add the new word to the server
-            const response = await fetch('http://localhost:3000/api/words', {
+            const response = await fetch('https://localhost:3000/api/words', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -313,7 +315,7 @@ class WordApp {
         }
 
         try {
-            const response = await fetch(`http://localhost:3000/api/words/search?query=${query}`, {
+            const response = await fetch(`https://localhost:3000/api/words/search?query=${query}`, {
                 headers: {
                     'Authorization': `Bearer ${this.token}`
                 }
@@ -396,7 +398,7 @@ class WordApp {
         }
 
         // 从 API 获取该用户名下的所有单词
-        fetch(`http://localhost:3000/api/words?username=${this.username}`, {
+        fetch(`https://localhost:3000/api/words?username=${this.username}`, {
             headers: {
                 'Authorization': `Bearer ${this.token}`
             }
@@ -513,7 +515,7 @@ class WordApp {
     async deleteWord(id, liElement) {
         try {
             // Send DELETE request to the server
-            const response = await fetch(`http://localhost:3000/api/words/${id}`, {
+            const response = await fetch(`https://localhost:3000/api/words/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
@@ -543,7 +545,7 @@ class WordApp {
             // 更新 UI
             this.handleCategoryChange();
             try {
-                const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
+                const response = await fetch(`https://localhost:3000/api/words/${id}/review`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
