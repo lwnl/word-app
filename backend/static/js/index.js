@@ -72,12 +72,52 @@ class WordApp {
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
         document.getElementById('searchQuery').addEventListener('input', () => this.debouncedDisplaySuggestions());
-        document.getElementById('clearButton').addEventListener('click', () => this.clearResult());
+        document.getElementById('clearButton_1').addEventListener('click', () => this.clearSearchResult());
+        document.getElementById('clearButton_2').addEventListener('click', (event) => this.clearRandomResult(event));
         document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
-
     }
 
-    clearResult() {
+    async resetWord(id, liElement) {
+        // 先在本地设置单词的 review 状态
+        const word = this.words.find(word => word._id === id);
+        if (word) {
+            word.review = false;
+            liElement.remove();
+            // 更新 UI
+            this.handleCategoryChange();
+            try {
+                const response = await fetch(`http://localhost:3000/api/words/${id}/review`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.token}`
+                    },
+                    body: JSON.stringify({ review: false })
+                });
+
+                if (response.ok) {
+                    console.log('Review status updated successfully');
+
+
+                } else {
+                    const errorText = await response.text();
+                    console.error(`Failed to update review status: ${errorText}`);
+                }
+            } catch (error) {
+                console.error('Error updating review status:', error);
+            }
+        } else {
+            console.error('Word not found in local data');
+        }
+    }
+
+    clearRandomResult(event) {
+        document.getElementById('quantity').focus()
+        event.preventDefault();
+        this.wordList.innerHTML = ''
+    }
+
+    clearSearchResult() {
         document.getElementById('searchResults').innerHTML = '';
         document.getElementById('searchQuery').value = '';
         document.getElementById('suggestions').innerHTML = '';
@@ -198,6 +238,12 @@ class WordApp {
                     this.deleteWord(word._id, li); // Delete the word when button is clicked
                 };
                 li.appendChild(deleteButton);
+
+                const resetBtn = document.createElement('button');
+                resetBtn.setAttribute('type', 'button')
+                resetBtn.textContent = 'Reset'
+                resetBtn.addEventListener('click', () => {this.resetWord(word._id, li)})
+                li.appendChild(resetBtn);
             }
             // Create and append review button if this.mainCategory.value is 'unfamiliar'
             if (this.mainCategory.value === 'unfamiliar') {
@@ -244,8 +290,8 @@ class WordApp {
             return;
         }
 
-        if (quantity > this.words.length) {
-            alert(`There are only ${this.words.length} words available.`);
+        if (quantity > Number(this.numberOfWords.textContent)) {
+            alert(`There are only ${this.numberOfWords.textContent} words available.`);
             return;
         }
 
@@ -254,6 +300,7 @@ class WordApp {
         this.displayWords(this.shuffledWords);
         // Clear the input field after displaying the words
         quantityInput.value = ''; 
+        quantityInput.focus()
     }
 
     // Search for words based on a query and display results
@@ -476,7 +523,7 @@ class WordApp {
                 await this.fetchWords();
                 // Get remaining words of the current category
                 this.handleCategoryChange();
-                liElement.parentNode.removeChild(liElement);
+                liElement.remove();
             } else {
                 console.error('Failed to delete word');
             }
@@ -490,7 +537,7 @@ class WordApp {
         const word = this.words.find(word => word._id === id);
         if (word) {
             word.review = true;
-            liElement.parentNode.removeChild(liElement);
+            liElement.remove();
             // 更新 UI
             this.handleCategoryChange();
             try {
