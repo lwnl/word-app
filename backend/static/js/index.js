@@ -121,6 +121,7 @@ class WordApp {
         document.getElementById('searchResults').innerHTML = '';
         document.getElementById('searchQuery').value = '';
         document.getElementById('suggestions').innerHTML = '';
+        document.getElementById('suggestions').style.border = '0'
     }
 
     // Handle category selection and update the displayed words
@@ -156,6 +157,7 @@ class WordApp {
 
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
+        this.wordList.innerHTML = ''
         return categoryWords;
     }
 
@@ -386,6 +388,7 @@ class WordApp {
         const query = document.getElementById('searchQuery').value.trim();
         const suggestionsContainer = document.getElementById('suggestions');
         suggestionsContainer.innerHTML = '';
+        suggestionsContainer.style.border = '1px solid #ccc'
         this.suggestions = []; // 重置建议列表
 
         if (!query) {
