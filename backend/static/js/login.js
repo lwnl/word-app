@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
+    // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 alert('Registration successful! Please log in.'); // Success message
                 // Optionally clear form fields or reset the form
-                loginForm.reset();
+                // loginForm.reset();
             } else {
                 const errorData = await response.json();
                 alert('Registration failed: ' + errorData.error);
