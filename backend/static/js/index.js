@@ -1,40 +1,25 @@
 // Initialize the application once the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('jwtToken'); // Ensure the token is retrieved and stored from login
-
-    // Initialize WordApp instance only if the token exists
-    if (token) {
-        const wordApp = new WordApp(token); 
-        wordApp.init();
-        // localStorage.removeItem('jwtToken');
-    } else {
-        console.error('No token found. Please log in first.');
-        window.location.href = 'https://localhost:3000/login.html'; //
-    }
-
+    const userData = new WordApp
+    userData.init()
     // Display username in the span
     const usernameElement = document.getElementById('username');
     const username = localStorage.getItem('username');
     if (username) {
         usernameElement.textContent = username;
-        // localStorage.removeItem('username');
     } 
 
     // Add event listener for the logout button
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            // clear token and username
-            localStorage.removeItem('jwtToken');
-            localStorage.removeItem('username');
             window.location.href = 'https://localhost:3000/login.html';
         });
     }
 });
 
 class WordApp {
-    constructor(token) {
-        this.token = token;
+    constructor() {
         this.words = [];
         this.shuffledWords = [];
         this.selectedIndex = -1;
@@ -51,9 +36,8 @@ class WordApp {
     async fetchWords() {
         try {
             const response = await fetch('https://localhost:3000/api/words', {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
+                method: 'GET',
+                credentials: 'include', // 确保包含 httpOnly cookie
             });
             const data = await response.json();
             this.words = data;
@@ -91,9 +75,9 @@ class WordApp {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.token}`
                     },
-                    body: JSON.stringify({ review: false })
+                    body: JSON.stringify({ review: false }),
+                    credentials: 'include' // 确保包含 httpOnly cookie
                 });
 
                 if (response.ok) {
@@ -158,7 +142,7 @@ class WordApp {
 
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
-        this.wordList.innerHTML = ''
+        // this.wordList.innerHTML = ''
         return categoryWords;
     }
 
@@ -177,9 +161,7 @@ class WordApp {
         try {
             // Check if the word already exists
             const fetchResponse = await fetch('https://localhost:3000/api/words', {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
+                credentials: 'include' // 确保包含 httpOnly cookie
             });
             const words = await fetchResponse.json();
             const duplicate = words.find(word => word.matherLanguage === matherLanguage && word.german === german);
@@ -193,9 +175,9 @@ class WordApp {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
                 },
                 body: JSON.stringify({ matherLanguage, german, categoryAdd }),
+                credentials: 'include' // 确保包含 httpOnly cookie
             });
 
             if (response.ok) {
@@ -316,9 +298,7 @@ class WordApp {
 
         try {
             const response = await fetch(`https://localhost:3000/api/words/search?query=${query}`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
+                credentials: 'include' // 确保包含 httpOnly cookie
             });
             if (!response.ok) {
                 console.error('Search failed:', response.statusText);
@@ -361,9 +341,7 @@ class WordApp {
                 try {
                     await fetch(`/api/words/${word._id}`, {
                         method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${this.token}`
-                        }
+                        credentials: 'include' // 确保包含 httpOnly cookie
                     });
                     // 从展示列表中移除词条
                     listItem.remove();
@@ -399,9 +377,7 @@ class WordApp {
 
         // 从 API 获取该用户名下的所有单词
         fetch(`https://localhost:3000/api/words?username=${this.username}`, {
-            headers: {
-                'Authorization': `Bearer ${this.token}`
-            }
+            credentials: 'include' // 确保包含 httpOnly cookie
         })
             .then(response => response.json())
             .then(words => {
@@ -493,9 +469,9 @@ class WordApp {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.token}`
                 },
-                body: JSON.stringify({ categoryAdd: newCategory })
+                body: JSON.stringify({ categoryAdd: newCategory }),
+                credentials: 'include' // 确保包含 httpOnly cookie
             });
 
             if (!response.ok) {
@@ -517,9 +493,7 @@ class WordApp {
             // Send DELETE request to the server
             const response = await fetch(`https://localhost:3000/api/words/${id}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${this.token}` // Ensure the token is sent with the request
-                }
+                credentials: 'include' // 确保包含 httpOnly cookie
             });
 
             if (response.status === 204) {
@@ -549,9 +523,9 @@ class WordApp {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.token}`
                     },
-                    body: JSON.stringify({ review: true })
+                    body: JSON.stringify({ review: true }),
+                    credentials: 'include' // 确保包含 httpOnly cookie
                 });
 
                 if (response.ok) {

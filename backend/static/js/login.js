@@ -19,15 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',  // 包括 cookie
                 body: JSON.stringify({ username, password }),
             });
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    console.log('current token is: ',data.token)
-                    localStorage.setItem('jwtToken', data.token); // Save token
-                    localStorage.setItem('username', username); // Save username
                     window.location.href = 'https://localhost:3000/index.html'; // Redirect to homepage
                 } else {
                     alert('Login failed: No token returned');
@@ -58,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // 包括 cookie
                 body: JSON.stringify({ username, password }),
             });
 

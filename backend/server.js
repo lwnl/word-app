@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser'); // 引入 cookie-parser
 const { MongoClient, ObjectId } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -16,6 +17,7 @@ const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment v
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cors()); // Enable CORS
+app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
 const uri = "mongodb://localhost:27017";
@@ -71,8 +73,8 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
 
 // JWT authentication middleware
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+    // Extract token from cookie
+    const token = req.cookies.token;
 
   if (token == null) return res.sendStatus(401); // If no token, return 401 status
 
@@ -116,7 +118,14 @@ async function run() {
         const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
         const newUser = { username, password: hashedPassword, token };
         await User.insertOne(newUser);
-        res.status(201).json({ token });
+        // Set the token as a cookie
+        res.cookie('token', token, {
+          httpOnly: true,  // Prevent access by JavaScript
+          secure: true,    // Ensure the cookie is sent over HTTPS only
+          sameSite: 'Strict', // Prevent CSRF attacks
+          maxAge: 3600000  // 1 hour validity
+        });
+        return res.status(201).json({ message: 'User registered successfully', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
@@ -140,14 +149,20 @@ async function run() {
         // Generate a new token
         const token = jwt.sign(
           {
-              username: user.username, 
-              jti: uuid.v4(), // each time new JWT ID
+            username: user.username,
+            jti: uuid.v4(), // each time new JWT ID
           },
-          SECRET_KEY, 
+          SECRET_KEY,
           { expiresIn: '1h' }
-      );
-      
-        res.json({ token });
+        );
+        // Set the token as a cookie
+        res.cookie('token', token, {
+          httpOnly: true,  // Prevent access by JavaScript
+          secure: true,    // Ensure the cookie is sent over HTTPS only
+          sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
+          maxAge: 3600000  // 1 hour validity
+        });
+        return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
@@ -258,8 +273,8 @@ run().catch(console.dir);
 
 // HTTPS server configuration
 const options = {
-  key: fs.readFileSync('server.key'),  
-  cert: fs.readFileSync('server.cert') 
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
 };
 
 https.createServer(options, app).listen(PORT, () => {
