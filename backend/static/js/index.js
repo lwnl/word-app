@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
         usernameElement.textContent = username;
+        localStorage.removeItem('username');
     } 
 
     // Add event listener for the logout button

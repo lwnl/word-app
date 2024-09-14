@@ -21,12 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 credentials: 'include',  // 包括 cookie
                 body: JSON.stringify({ username, password }),
+                
             });
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
                     window.location.href = 'https://localhost:3000/index.html'; // Redirect to homepage
+                    localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
                 }
