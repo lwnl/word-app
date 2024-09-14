@@ -273,8 +273,8 @@ run().catch(console.dir);
 
 // HTTPS server configuration
 const options = {
-  key: fs.readFileSync('server.key'),
-  cert: fs.readFileSync('server.cert')
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt')
 };
 
 https.createServer(options, app).listen(PORT, () => {
