@@ -34,7 +34,7 @@ class WordApp {
         this.subCategory = document.getElementById('subCategory');
     }
 
-    async fetchWords() {
+    async fetchWords(method) {
         try {
             const response = await fetch('https://localhost:3000/api/words', {
                 method: 'GET',
@@ -42,7 +42,7 @@ class WordApp {
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
+            this.numberOfWords.innerHTML = this.handleCategoryChange(method).length;
         } catch (error) {
             console.error('Error fetching words:', error);
         }
@@ -51,8 +51,8 @@ class WordApp {
     init() {
         this.fetchWords();
         // Add event listeners
-        this.mainCategory.addEventListener('change', () => this.handleCategoryChange());
-        this.subCategory.addEventListener('change', () => this.handleCategoryChange());
+        this.mainCategory.addEventListener('change', () => this.handleCategoryChange('change'));
+        this.subCategory.addEventListener('change', () => this.handleCategoryChange('change'));
         document.getElementById('btnmatherLanguage').addEventListener('click', () => this.toggleMatherLanguage());
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
@@ -111,7 +111,7 @@ class WordApp {
     }
 
     // Handle category selection and update the displayed words
-    handleCategoryChange() {
+    handleCategoryChange(method) {
         this.currentCategory = this.mainCategory.value; // Update the current category
 
         const subCategoryValue = this.subCategory.value;
@@ -143,7 +143,9 @@ class WordApp {
 
         // Update the number of words display
         this.numberOfWords.innerHTML = categoryWords.length;
-        // this.wordList.innerHTML = ''
+        if (method === 'change' || method === 'submit') {
+            this.wordList.innerHTML = ''
+        }
         return categoryWords;
     }
 
@@ -282,7 +284,7 @@ class WordApp {
         }
 
         // Shuffle words and display a subset
-        this.shuffledWords = this.handleCategoryChange().sort(() => 0.5 - Math.random()).slice(0, quantity);
+        this.shuffledWords = this.handleCategoryChange('submit').sort(() => 0.5 - Math.random()).slice(0, quantity);
         this.displayWords(this.shuffledWords);
         // Clear the input field after displaying the words
         quantityInput.value = ''; 
