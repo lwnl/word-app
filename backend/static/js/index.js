@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const username = localStorage.getItem('username');
     if (username) {
         usernameElement.textContent = username;
-        localStorage.removeItem('username');
+        // localStorage.removeItem('username');
     } 
 
     // Add event listener for the logout button
@@ -338,18 +338,8 @@ class WordApp {
             // 添加删除按钮
             const deleteButton = document.createElement('button');
             deleteButton.innerText = 'Delete';
-            deleteButton.addEventListener('click', async () => {
-                try {
-                    await fetch(`/api/words/${word._id}`, {
-                        method: 'DELETE',
-                        credentials: 'include' // 确保包含 httpOnly cookie
-                    });
-                    // 从展示列表中移除词条
-                    listItem.remove();
-                    await this.fetchWords(); // 重新获取数据并刷新展示
-                } catch (error) {
-                    console.error('删除单词时出错:', error);
-                }
+            deleteButton.addEventListener('click', () => {
+                this.deleteWord(word._id, listItem);
             });
             listItem.appendChild(deleteButton);
 
@@ -501,7 +491,6 @@ class WordApp {
                 // Fetch the updated list of words from the server
                 await this.fetchWords();
                 // Get remaining words of the current category
-                this.handleCategoryChange();
                 liElement.remove();
             } else {
                 console.error('Failed to delete word');
