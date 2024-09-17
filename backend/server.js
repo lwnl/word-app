@@ -73,8 +73,8 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
 
 // JWT authentication middleware
 function authenticateToken(req, res, next) {
-    // Extract token from cookie
-    const token = req.cookies.token;
+  // Extract token from cookie
+  const token = req.cookies.token;
 
   if (token == null) return res.sendStatus(401); // If no token, return 401 status
 
@@ -88,6 +88,11 @@ function authenticateToken(req, res, next) {
 async function run() {
   try {
     const db = await connectToDb();
+
+    // Redirect root URL to login.html
+    app.get('/', (req, res) => {
+      res.redirect('/login.html');
+    });
 
     // Serve static files from the 'static' directory
     app.use(express.static(path.join(__dirname, 'static')));
