@@ -35,7 +35,19 @@ async function connectToDb() {
   }
 }
 
-
+function checkAuthAndRedirect(req, res, next) {
+  const token = req.cookies.token;
+  if (token) {
+    jwt.verify(token, SECRET_KEY, (err) => {
+      if (err) {
+        return res.redirect('/login.html');
+      }
+      return res.redirect('/index.html');
+    });
+  } else {
+    return res.redirect('/login.html');
+  }
+}
 
 // Delete a word
 async function deleteWord(id) {
@@ -76,7 +88,7 @@ function authenticateToken(req, res, next) {
   // Extract token from cookie
   const token = req.cookies.token;
 
-  if (token == null) return res.sendStatus(401); // If no token, return 401 status
+  if (token == null) return res.redirect('/login.html'); // If no token, return 401 status
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403); // If token is invalid, return 403 status
@@ -89,9 +101,10 @@ async function run() {
   try {
     const db = await connectToDb();
 
-    // Redirect root URL to login.html
-    app.get('/', (req, res) => {
-      res.redirect('/login.html');
+    // Redirect root URL to login.html 
+    app.get('/', checkAuthAndRedirect);
+    app.get('/index.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'static', 'index.html'));
     });
 
     // Serve static files from the 'static' directory
