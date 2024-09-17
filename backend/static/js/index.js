@@ -8,13 +8,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (username) {
         usernameElement.textContent = username;
         // localStorage.removeItem('username');
-    } 
+    }
 
     // Add event listener for the logout button
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            window.location.href = 'https://localhost:3000/login.html';
+        logoutBtn.addEventListener('click', async function () {
+            try {
+                const res = await fetch('/api/logout', {
+                    method: 'post',
+                    credentials: 'include'
+                })
+                if (res.ok) {
+                    window.location.href = 'https://localhost:3000/login.html';
+                } else {
+                    console.log('Logout failed')
+                }
+            } catch (error) {
+                console.error('Error during logout', error)
+            }
         });
     }
 });
@@ -230,7 +242,7 @@ class WordApp {
                 const resetBtn = document.createElement('button');
                 resetBtn.setAttribute('type', 'button')
                 resetBtn.textContent = 'Reset'
-                resetBtn.addEventListener('click', () => {this.resetWord(word._id, li)})
+                resetBtn.addEventListener('click', () => { this.resetWord(word._id, li) })
                 li.appendChild(resetBtn);
             }
             // Create and append review button if this.mainCategory.value is 'unfamiliar'
@@ -287,7 +299,7 @@ class WordApp {
         this.shuffledWords = this.handleCategoryChange('submit').sort(() => 0.5 - Math.random()).slice(0, quantity);
         this.displayWords(this.shuffledWords);
         // Clear the input field after displaying the words
-        quantityInput.value = ''; 
+        quantityInput.value = '';
         quantityInput.focus()
     }
 

@@ -24,6 +24,48 @@ const uri = "mongodb://localhost:27017";
 const dbName = "word-db";
 const client = new MongoClient(uri);
 
+// search and update word properties
+app.patch('/api/words/:id', authenticateToken, async (req, res) => {
+  const id = req.params.id;
+  const updatedFields = req.body;
+  console.log('Updating word:', { id, updatedFields }); // 添加调试日志
+
+  try {
+    const db = await connectToDb();
+    const collection = db.collection('words');
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id), username: req.user.username },
+      { $set: { categoryAdd: updatedFields.categoryAdd } }
+    );
+
+    if (result.matchedCount === 0) {
+      res.status(404).send('Word not found');
+    } else {
+      const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
+      res.status(200).json(updatedWord);
+    }
+  } catch (error) {
+    console.error('Error updating word:', error);
+    res.status(500).json({ error: 'Failed to update word' });
+  }
+});
+
+run().catch(console.dir);
+
+// app.listen(PORT, () => {
+//   console.log(`Server is running on http://localhost:${PORT}`);
+// });
+
+// HTTPS server configuration
+const options = {
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt')
+};
+
+https.createServer(options, app).listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
+});
+
 async function connectToDb() {
   try {
     await client.connect();
@@ -56,32 +98,6 @@ async function deleteWord(id) {
   const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount === 1;
 }
-
-// search and update word properties
-app.patch('/api/words/:id', authenticateToken, async (req, res) => {
-  const id = req.params.id;
-  const updatedFields = req.body;
-  console.log('Updating word:', { id, updatedFields }); // 添加调试日志
-
-  try {
-    const db = await connectToDb();
-    const collection = db.collection('words');
-    const result = await collection.updateOne(
-      { _id: new ObjectId(id), username: req.user.username },
-      { $set: { categoryAdd: updatedFields.categoryAdd } }
-    );
-
-    if (result.matchedCount === 0) {
-      res.status(404).send('Word not found');
-    } else {
-      const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
-      res.status(200).json(updatedWord);
-    }
-  } catch (error) {
-    console.error('Error updating word:', error);
-    res.status(500).json({ error: 'Failed to update word' });
-  }
-});
 
 // JWT authentication middleware
 function authenticateToken(req, res, next) {
@@ -147,6 +163,16 @@ async function run() {
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
+    });
+
+    // Logout route
+    app.post('/api/logout', (req, res) => {
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict'
+      });
+      res.status(200).json({ message: 'Logout successful' });
     });
 
     // Login route
@@ -282,19 +308,3 @@ async function run() {
     console.error(err.stack);
   }
 }
-
-run().catch(console.dir);
-
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-// HTTPS server configuration
-const options = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
-
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
-});
