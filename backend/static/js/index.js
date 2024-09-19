@@ -31,6 +31,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+/* 
+functions in WordApp class:
+- fetchWords: Fetch words from the server
+- init: Initialize the application
+- resetWord: Reset the review status of a word
+- clearRandomResult: Clear the random word result
+- clearSearchResult: Clear the search result
+- handleCategoryChange: Handle category selection and update the displayed words
+- addWord: Add a new word to the server and update the list of words
+- displayWords: Display the list of words based on the current display settings
+- toggleMatherLanguage: Toggle the visibility of matherLanguage words
+- toggleGerman: Toggle the visibility of German words
+- handleFormSubmit: Handle form submission to display a random set of words
+- searchWords: Search for words based on a query and display results
+- displaySearchResults: Display search results
+- debouncedDisplaySuggestions: Debounced function to display suggestions
+- displaySuggestions: Display search suggestions
+- selectSuggestion: Select a suggestion from the list
+- clearSuggestions: Clear the search suggestions
+- handleKeyDown: Handle keydown events for search suggestions
+- highlightSuggestion: Highlight the selected suggestion
+- updateWordCategory: Update the category of a word
+- deleteWord: Delete a word and replace it with a random word of the same category
+- setReview: Set the review status of a word
+ */
+
 class WordApp {
     constructor() {
         this.words = [];
@@ -303,62 +329,37 @@ class WordApp {
         quantityInput.focus()
     }
 
-    // Search for words based on a query and display results
-    async searchWords(query) {
-        if (!query) {
-            this.displaySearchResults([]);
-            this.clearSuggestions();
-            return;
-        }
 
-        try {
-            const response = await fetch(`https://localhost:3000/api/words/search?query=${query}`, {
-                credentials: 'include' // 确保包含 httpOnly cookie
-            });
-            if (!response.ok) {
-                console.error('Search failed:', response.statusText);
-                return;
-            }
-
-            const words = await response.json();
-            this.displaySearchResults(words);
-        } catch (error) {
-            console.error('Error searching words:', error);
-        }
-    }
-
-    displaySearchResults(words) {
+    displaySearchResults(word) {
         const resultsContainer = document.getElementById('searchResults');
         resultsContainer.innerHTML = ''; // 清空结果容器
 
-        words.forEach(word => {
-            const listItem = document.createElement('li');
-            listItem.innerText = `${word.matherLanguage} - ${word.german}`;
+        const listItem = document.createElement('li');
+        listItem.innerText = `${word.matherLanguage} - ${word.german}`;
 
-            // 添加 category 选择框
-            const categorySelect = document.createElement('select');
-            categorySelect.innerHTML = `
+        // 添加 category 选择框
+        const categorySelect = document.createElement('select');
+        categorySelect.innerHTML = `
                 <option value="tech" ${word.categoryAdd === 'tech' ? 'selected' : ''}>Technical Words</option>
                 <option value="daily" ${word.categoryAdd === 'daily' ? 'selected' : ''}>Daily Words</option>
             `;
-            categorySelect.addEventListener('change', async (event) => {
-                const newCategory = event.target.value;
-                console.log('Selected new category:', newCategory); // 添加调试日志
+        categorySelect.addEventListener('change', async (event) => {
+            const newCategory = event.target.value;
+            console.log('Selected new category:', newCategory); // 添加调试日志
 
-                await this.updateWordCategory(word._id, newCategory);
-            });
-            listItem.appendChild(categorySelect);
-
-            // 添加删除按钮
-            const deleteButton = document.createElement('button');
-            deleteButton.innerText = 'Delete';
-            deleteButton.addEventListener('click', () => {
-                this.deleteWord(word._id, listItem);
-            });
-            listItem.appendChild(deleteButton);
-
-            resultsContainer.appendChild(listItem);
+            await this.updateWordCategory(word._id, newCategory);
         });
+        listItem.appendChild(categorySelect);
+
+        // 添加删除按钮
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'Delete';
+        deleteButton.addEventListener('click', () => {
+            this.deleteWord(word._id, listItem);
+        });
+        listItem.appendChild(deleteButton);
+
+        resultsContainer.appendChild(listItem);
     }
 
     debouncedDisplaySuggestions() {
@@ -381,47 +382,37 @@ class WordApp {
         }
 
         // 从 API 获取该用户名下的所有单词
-        fetch(`https://localhost:3000/api/words?username=${this.username}`, {
-            credentials: 'include' // 确保包含 httpOnly cookie
-        })
-            .then(response => response.json())
-            .then(words => {
-                // 过滤包含输入字符的单词
-                this.suggestions = words.filter(word =>
-                    word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
-                    word.german.toLowerCase().includes(query.toLowerCase())
-                );
-                console.log('filtered words:', this.suggestions); // 添加调试日志
-                this.selectedIndex = -1;
-                this.suggestions.forEach((word, index) => {
-                    const suggestionItem = document.createElement('div');
-                    // 根据匹配属性设置文本内容
-                    if (word.matherLanguage.toLowerCase().includes(query.toLowerCase())) {
-                        suggestionItem.textContent = word.matherLanguage;
-                    } else if (word.german.toLowerCase().includes(query.toLowerCase())) {
-                        suggestionItem.textContent = word.german;
-                    }
-                    suggestionItem.classList.add('suggestion-item');
-                    suggestionItem.addEventListener('click', () => this.selectSuggestion(index));
-                    suggestionsContainer.appendChild(suggestionItem);
-                });
-
-                suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
+        if (this.words.length === 0) {
+            fetch(`https://localhost:3000/api/words?username=${this.username}`, {
+                credentials: 'include' // 确保包含 httpOnly cookie
             })
-            .catch(error => console.error('Error fetching suggestions:', error));
-    }
-
-    selectSuggestion(index) {
-        const queryInput = document.getElementById('searchQuery');
-        const selectedWord = this.suggestions[index];
-        // 根据匹配属性设置输入框的值
-        if (selectedWord.matherLanguage.toLowerCase().includes(queryInput.value.toLowerCase())) {
-            queryInput.value = selectedWord.matherLanguage;
-        } else if (selectedWord.german.toLowerCase().includes(queryInput.value.toLowerCase())) {
-            queryInput.value = selectedWord.german;
+                .then(response => response.json())
+                .then(words => this.words = words)
+                .catch(error => console.error('Error fetching suggestions:', error));
         }
-        this.searchWords(queryInput.value); // 使用选择的单词进行搜索
-        this.clearSuggestions();
+        this.suggestions = this.words.filter(word =>
+            word.matherLanguage.toLowerCase().startsWith(query.toLowerCase()) ||
+            word.german.toLowerCase().startsWith(query.toLowerCase())
+        );
+        if (this.suggestions.length === 0) {
+            this.suggestions = this.words.filter(word =>
+                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                word.german.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+        console.log('filtered words:', this.suggestions); // 添加调试日志
+        this.selectedIndex = -1;
+        this.suggestions.forEach((word, index) => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.innerText = `${word.german} - ${word.matherLanguage}`;
+            suggestionItem.classList.add('suggestion-item');
+            suggestionItem.addEventListener('click', () => {
+                this.displaySearchResults(word); // 使用选择的单词进行搜索
+                this.clearSuggestions();
+            });
+            suggestionsContainer.appendChild(suggestionItem);
+        });
+        suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
     }
 
     clearSuggestions() {
@@ -438,11 +429,14 @@ class WordApp {
 
         switch (event.key) {
             case 'ArrowDown':
-                this.selectedIndex = (this.selectedIndex + 1) % this.suggestions.length;
+                this.selectedIndex = this.selectedIndex + 1 > this.suggestions.length - 1 ?
+                    this.suggestions.length - 1
+                    : this.selectedIndex + 1;
                 this.highlightSuggestion();
                 break;
             case 'ArrowUp':
-                this.selectedIndex = (this.selectedIndex - 1 + this.suggestions.length) % this.suggestions.length;
+                this.selectedIndex = this.selectedIndex - 1 < 0 ?
+                    0 : this.selectedIndex - 1;
                 this.highlightSuggestion();
                 break;
             case 'Enter':
