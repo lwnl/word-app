@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
+    // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
-    // 处理登录
+    // login event
     loginBtn.addEventListener('click', async () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
@@ -14,20 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch('https://localhost:3000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',  // 包括 cookie
                 body: JSON.stringify({ username, password }),
+                
             });
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    localStorage.setItem('jwtToken', data.token); // Save token
-                    localStorage.setItem('username', username); // Save username
-                    window.location.href = 'http://localhost:3000/index.html'; // Redirect to homepage
+                    window.location.href = 'https://localhost:3000/index.html'; // Redirect to homepage
+                    localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
                 }
@@ -52,18 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('https://localhost:3000/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // 包括 cookie
                 body: JSON.stringify({ username, password }),
             });
 
             if (response.ok) {
                 alert('Registration successful! Please log in.'); // Success message
                 // Optionally clear form fields or reset the form
-                loginForm.reset();
+                // loginForm.reset();
             } else {
                 const errorData = await response.json();
                 alert('Registration failed: ' + errorData.error);

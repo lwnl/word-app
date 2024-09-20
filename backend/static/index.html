@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="/css/index.css">
     <script src="/js/index.js"></script>
 </head>
+
 <body>
     <div class="container">
         <div>
@@ -26,28 +28,31 @@
 
         <h2>Search Words</h2>
         <input type="text" id="searchQuery" placeholder="Search by matherLanguage or German">
-        <button id="searchButton">Search</button>
+        <div id="suggestions" class="suggestions"></div>
+        <button id="clearButton_1">Clear</button>
         <ol id="searchResults"></ol>
-        
+
         <h2>Random Word List</h2>
         <form id="randomWordsForm">
             <select id="mainCategory">
+                <option value="all">All Words</option>
                 <option value="unfamiliar">Unfamiliar</option>
                 <option value="review">Review</option>
-                <option value="all">All Words</option>
             </select>
             <select id="subCategory">
+                <option value="all">All</option>
                 <option value="tech">Technical Words</option>
                 <option value="daily">Daily Words</option>
-                <option value="all">All</option>
             </select>
             <span>How many words from <span id="numberOfWords">0</span> you want to try?</span>
             <input id="quantity" type="text" placeholder="quantity">
-            <button type="submit">Get Random Words</button>
+            <button>Get Random Words</button>
+            <button id="clearButton_2">Clear</button>
         </form>
         <button id="btnmatherLanguage">Hide matherLanguage</button>
         <button id="btnGerman">Show Deutsch</button>
         <ol id="wordList"></ol>
     </div>
 </body>
+
 </html>

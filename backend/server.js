@@ -1,9 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser'); // 引入 cookie-parser
 const { MongoClient, ObjectId } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const uuid = require('uuid');
+const https = require('https');
+const fs = require('fs');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -13,30 +17,12 @@ const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment v
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cors()); // Enable CORS
+app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
 const uri = "mongodb://localhost:27017";
 const dbName = "word-db";
 const client = new MongoClient(uri);
-
-async function connectToDb() {
-  try {
-    await client.connect();
-    console.log("Connected correctly to server");
-    return client.db(dbName);
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1);
-  }
-}
-
-// Delete a word
-async function deleteWord(id) {
-  const db = await connectToDb();
-  const collection = db.collection('words');
-  const result = await collection.deleteOne({ _id: new ObjectId(id) });
-  return result.deletedCount === 1;
-}
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
@@ -64,12 +50,61 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   }
 });
 
+run().catch(console.dir);
+
+// app.listen(PORT, () => {
+//   console.log(`Server is running on http://localhost:${PORT}`);
+// });
+
+// HTTPS server configuration
+const options = {
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt')
+};
+
+https.createServer(options, app).listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
+});
+
+async function connectToDb() {
+  try {
+    await client.connect();
+    console.log("Connected correctly to MongoDB");
+    return client.db(dbName);
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+    process.exit(1);
+  }
+}
+
+function checkAuthAndRedirect(req, res, next) {
+  const token = req.cookies.token;
+  if (token) {
+    jwt.verify(token, SECRET_KEY, (err) => {
+      if (err) {
+        return res.redirect('/login.html');
+      }
+      return res.redirect('/index.html');
+    });
+  } else {
+    return res.redirect('/login.html');
+  }
+}
+
+// Delete a word
+async function deleteWord(id) {
+  const db = await connectToDb();
+  const collection = db.collection('words');
+  const result = await collection.deleteOne({ _id: new ObjectId(id) });
+  return result.deletedCount === 1;
+}
+
 // JWT authentication middleware
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  // Extract token from cookie
+  const token = req.cookies.token;
 
-  if (token == null) return res.sendStatus(401); // If no token, return 401 status
+  if (token == null) return res.redirect('/login.html'); // If no token, return 401 status
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) return res.sendStatus(403); // If token is invalid, return 403 status
@@ -81,6 +116,12 @@ function authenticateToken(req, res, next) {
 async function run() {
   try {
     const db = await connectToDb();
+
+    // Redirect root URL to login.html 
+    app.get('/', checkAuthAndRedirect);
+    app.get('/index.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'static', 'index.html'));
+    });
 
     // Serve static files from the 'static' directory
     app.use(express.static(path.join(__dirname, 'static')));
@@ -111,10 +152,27 @@ async function run() {
         const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
         const newUser = { username, password: hashedPassword, token };
         await User.insertOne(newUser);
-        res.status(201).json({ token });
+        // Set the token as a cookie
+        res.cookie('token', token, {
+          httpOnly: true,  // Prevent access by JavaScript
+          secure: true,    // Ensure the cookie is sent over HTTPS only
+          sameSite: 'Strict', // Prevent CSRF attacks
+          maxAge: 3600000  // 1 hour validity
+        });
+        return res.status(201).json({ message: 'User registered successfully', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
+    });
+
+    // Logout route
+    app.post('/api/logout', (req, res) => {
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict'
+      });
+      res.status(200).json({ message: 'Logout successful' });
     });
 
     // Login route
@@ -133,8 +191,22 @@ async function run() {
         }
 
         // Generate a new token
-        const token = jwt.sign({ username: user.username }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ token });
+        const token = jwt.sign(
+          {
+            username: user.username,
+            jti: uuid.v4(), // each time new JWT ID
+          },
+          SECRET_KEY,
+          { expiresIn: '1h' }
+        );
+        // Set the token as a cookie
+        res.cookie('token', token, {
+          httpOnly: true,  // Prevent access by JavaScript
+          secure: true,    // Ensure the cookie is sent over HTTPS only
+          sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
+          maxAge: 3600000  // 1 hour validity
+        });
+        return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
@@ -148,10 +220,10 @@ async function run() {
       const { matherLanguage, german, categoryAdd } = req.body;
       try {
         const result = await db.collection('words').insertOne({
-          matherLanguage,     
-          german,      
-          categoryAdd,  
-          username: req.user.username, 
+          matherLanguage,
+          german,
+          categoryAdd,
+          username: req.user.username,
           review: false
         });
         res.status(201).json({ id: result.insertedId });
@@ -183,6 +255,38 @@ async function run() {
         res.status(500).json({ error: 'Failed to search words' });
       }
     });
+    // PATCH 路由来更新单词的 review 属性
+    // 更新 review 属性的路由
+    app.patch('/api/words/:id/review', authenticateToken, async (req, res) => {
+      const id = req.params.id;
+      const { review } = req.body;
+
+      console.log('Updating word review:', { id, review });
+
+      if (typeof review !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid review value' });
+      }
+
+      try {
+        const db = await connectToDb();
+        const collection = db.collection('words');
+
+        const result = await collection.updateOne(
+          { _id: new ObjectId(id), username: req.user.username },
+          { $set: { review } }
+        );
+
+        if (result.matchedCount === 0) {
+          res.status(404).json({ error: 'Word not found' });
+        } else {
+          const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
+          res.status(200).json(updatedWord);
+        }
+      } catch (error) {
+        console.error('Error updating word review:', error);
+        res.status(500).json({ error: 'Failed to update review' });
+      }
+    });
 
     // Delete word route (protected)
     app.delete('/api/words/:id', authenticateToken, async (req, res) => {
@@ -204,9 +308,3 @@ async function run() {
     console.error(err.stack);
   }
 }
-
-run().catch(console.dir);
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});

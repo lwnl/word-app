@@ -31,6 +31,12 @@ button {
 
 #searchQuery {
   width: 33ch;
+  text-align: left;
+  padding: 2px;
+}
+
+#searchResults select {
+  margin-inline: 0.5rem;
 }
 
 .logout {
@@ -40,4 +46,31 @@ button {
   & span:first-of-type {
     margin-left: auto;
   }
+}
+
+.suggestions {
+  display: none;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  background-color: white;
+  width: 200px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestion-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestion-item:hover, .suggestion-item.selected {
+  background-color: #eee;
+}
+
+.no-hover {
+  pointer-events: none; /* 禁用鼠标事件 */
+  background-color: #ffffff;
 }
