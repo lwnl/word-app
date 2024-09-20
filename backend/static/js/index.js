@@ -44,11 +44,9 @@ functions in WordApp class:
 - toggleMatherLanguage: Toggle the visibility of matherLanguage words
 - toggleGerman: Toggle the visibility of German words
 - handleFormSubmit: Handle form submission to display a random set of words
-- searchWords: Search for words based on a query and display results
 - displaySearchResults: Display search results
 - debouncedDisplaySuggestions: Debounced function to display suggestions
 - displaySuggestions: Display search suggestions
-- selectSuggestion: Select a suggestion from the list
 - clearSuggestions: Clear the search suggestions
 - handleKeyDown: Handle keydown events for search suggestions
 - highlightSuggestion: Highlight the selected suggestion
@@ -410,6 +408,7 @@ class WordApp {
                 this.displaySearchResults(word); // 使用选择的单词进行搜索
                 this.clearSuggestions();
             });
+
             suggestionsContainer.appendChild(suggestionItem);
         });
         suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
@@ -425,7 +424,6 @@ class WordApp {
 
     handleKeyDown(event) {
         const suggestionsContainer = document.getElementById('suggestions');
-        if (suggestionsContainer.style.display === 'none') return;
 
         switch (event.key) {
             case 'ArrowDown':
@@ -441,7 +439,8 @@ class WordApp {
                 break;
             case 'Enter':
                 if (this.selectedIndex >= 0) {
-                    this.selectSuggestion(this.selectedIndex);
+                    this.displaySearchResults(this.suggestions[this.selectedIndex]);
+                    suggestionsContainer.style.display = 'none';
                 }
                 break;
             case 'Escape':
@@ -455,6 +454,10 @@ class WordApp {
         Array.from(suggestionsContainer.children).forEach((item, index) => {
             if (index === this.selectedIndex) {
                 item.classList.add('selected');
+                listItems[selectedIndex].scrollIntoView({
+                    behavior: 'smooth', // Optional: Smooth scrolling
+                    block: 'nearest'    // Ensure the item is in view
+                  });
             } else {
                 item.classList.remove('selected');
             }

@@ -64,6 +64,10 @@ button {
 .suggestion-item {
   padding: 8px;
   cursor: pointer;
+
+  /* &:hover {
+    background-color: #eee;
+  } */
 }
 
 .suggestion-item:hover, .suggestion-item.selected {
