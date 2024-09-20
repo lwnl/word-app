@@ -98,7 +98,7 @@ class WordApp {
         document.getElementById('clearButton_1').addEventListener('click', () => this.clearSearchResult());
         document.getElementById('clearButton_2').addEventListener('click', (event) => this.clearRandomResult(event));
         document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
-        document.addEventListener('mousemove', () => this.handleMouseMove());
+        document.getElementById('suggestions').addEventListener('mousemove', () => this.handleMouseMove());
     }
 
     async resetWord(id, liElement) {
