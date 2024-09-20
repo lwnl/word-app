@@ -370,7 +370,8 @@ class WordApp {
     }
 
     displaySuggestions() {
-        const query = document.getElementById('searchQuery').value.trim();
+        const input = document.getElementById('searchQuery');
+        const query = input.value.trim();
         const suggestionsContainer = document.getElementById('suggestions');
         suggestionsContainer.innerHTML = '';
         suggestionsContainer.style.border = '1px solid #ccc'
@@ -408,6 +409,7 @@ class WordApp {
             suggestionItem.classList.add('suggestion-item');
             suggestionItem.addEventListener('click', () => {
                 this.displaySearchResults(word); // 使用选择的单词进行搜索
+                input.value = '';
                 this.clearSuggestions();
             });
             suggestionsContainer.appendChild(suggestionItem);
@@ -463,6 +465,7 @@ class WordApp {
                 if (this.selectedIndex >= 0) {
                     this.displaySearchResults(this.suggestions[this.selectedIndex]);
                     suggestionsContainer.style.display = 'none';
+                    document.getElementById('searchQuery').value = '';
                 }
                 break;
             case 'Escape':
