@@ -101,6 +101,7 @@ class WordApp {
         document.getElementById('suggestions').addEventListener('mousemove', () => this.handleMouseMove());
     }
 
+    
     async resetWord(id, liElement) {
         // 先在本地设置单词的 review 状态
         const word = this.words.find(word => word._id === id);
