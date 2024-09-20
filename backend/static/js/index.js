@@ -64,6 +64,7 @@ class WordApp {
         this.currentCategory = 'all'; // Initialize the current category. An value must be given!
         this.showMatherLanguageWords = true;
         this.showGermanWords = false;
+        this.noHoverActive = false; // 用于判断是否使用键盘选择
         this.numberOfWords = document.getElementById('numberOfWords');
         this.wordList = document.getElementById('wordList');
         this.mainCategory = document.getElementById('mainCategory');
@@ -97,6 +98,7 @@ class WordApp {
         document.getElementById('clearButton_1').addEventListener('click', () => this.clearSearchResult());
         document.getElementById('clearButton_2').addEventListener('click', (event) => this.clearRandomResult(event));
         document.getElementById('searchQuery').addEventListener('keydown', (event) => this.handleKeyDown(event));
+        document.addEventListener('mousemove', () => this.handleMouseMove());
     }
 
     async resetWord(id, liElement) {
@@ -408,7 +410,6 @@ class WordApp {
                 this.displaySearchResults(word); // 使用选择的单词进行搜索
                 this.clearSuggestions();
             });
-
             suggestionsContainer.appendChild(suggestionItem);
         });
         suggestionsContainer.style.display = this.suggestions.length > 0 ? 'block' : 'none';
@@ -422,8 +423,29 @@ class WordApp {
         this.selectedIndex = -1;
     }
 
+    handleMouseMove() {
+        const suggestionItems = document.getElementsByClassName('suggestion-item');
+        
+        // 清除所有项的 hover 效果
+        Array.from(suggestionItems).forEach(item => {
+            item.style.backgroundColor = 'white'; // 恢复背景颜色
+        });
+        
+        const hoveredElement = document.querySelector('.suggestion-item:hover');
+        if (hoveredElement) {
+            hoveredElement.style.backgroundColor = '#eee'; // 高亮鼠标悬停的项
+            this.selectedIndex = Array.from(suggestionItems).indexOf(hoveredElement);
+        }
+    }
+
     handleKeyDown(event) {
         const suggestionsContainer = document.getElementById('suggestions');
+        this.noHoverActive = true;
+
+        // 移除所有项的 hover 效果
+        Array.from(suggestionsContainer.children).forEach(item => {
+            item.style.backgroundColor = 'white'; // 恢复背景颜色
+        });
 
         switch (event.key) {
             case 'ArrowDown':
@@ -453,11 +475,11 @@ class WordApp {
         const suggestionsContainer = document.getElementById('suggestions');
         Array.from(suggestionsContainer.children).forEach((item, index) => {
             if (index === this.selectedIndex) {
-                item.classList.add('selected');
-                listItems[selectedIndex].scrollIntoView({
+                item.style.backgroundColor = '#eee'; // 高亮选中项
+                item.scrollIntoView({
                     behavior: 'smooth', // Optional: Smooth scrolling
                     block: 'nearest'    // Ensure the item is in view
-                  });
+                });
             } else {
                 item.classList.remove('selected');
             }

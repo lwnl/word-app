@@ -64,12 +64,13 @@ button {
 .suggestion-item {
   padding: 8px;
   cursor: pointer;
-
-  /* &:hover {
-    background-color: #eee;
-  } */
 }
 
 .suggestion-item:hover, .suggestion-item.selected {
   background-color: #eee;
+}
+
+.no-hover {
+  pointer-events: none; /* 禁用鼠标事件 */
+  background-color: #ffffff;
 }
