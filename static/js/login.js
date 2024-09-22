@@ -1,6 +1,6 @@
-let host = 'https://localhost:3000'
-// host = window.location.origin
-host = 'wordapp-one.vercel.app'
+let host = window.location.origin
+// host =  https://localhost:3000
+// host = 'wordapp-one.vercel.app'
 document.addEventListener('DOMContentLoaded', () => {
 
     console.log('host:', host)
