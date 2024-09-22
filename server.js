@@ -18,7 +18,7 @@ const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment v
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cors({
-  origin: 'https://wordapp-one.vercel.app', // 替换为你的前端 URL
+  origin: '*', // 替换为你的前端 URL
   credentials: true
 }));
 app.use(cookieParser()); // 解析 cookie
