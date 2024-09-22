@@ -1,18 +1,25 @@
+// "builds": [
+//   {
+//     "src": "server.js",
+//     "use": "@vercel/node"
+//   }
+// ],
+
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
-const { MongoClient, ObjectId, ServerApiVersion} = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
-let db; 
+let db;
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT =  process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware
