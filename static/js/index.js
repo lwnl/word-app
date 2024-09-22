@@ -1,6 +1,7 @@
 // Initialize the application once the DOM is fully loaded
 let host = 'https://localhost:3000'
-host = window.location.origin
+// host = window.location.origin
+host = 'wordapp-one.vercel.app'
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('host:', host)

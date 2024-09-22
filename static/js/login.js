@@ -1,6 +1,8 @@
+let host = 'https://localhost:3000'
+// host = window.location.origin
+host = 'wordapp-one.vercel.app'
 document.addEventListener('DOMContentLoaded', () => {
-    let host = 'https://localhost:3000'
-    host = window.location.origin
+
     console.log('host:', host)
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');

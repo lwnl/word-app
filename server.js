@@ -33,8 +33,7 @@ const client = new MongoClient(uri, {
 });
 const dbName = "word-db";
 
-// 部署vercel不需要https
-// Create HTTPS server
+// 部署vercel不需要https  Create HTTPS server
 // const httpsOptions = {
 //   key: fs.readFileSync('./cert/server.key'),
 //   cert: fs.readFileSync('./cert/server.crt')
