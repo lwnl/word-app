@@ -150,14 +150,8 @@ async function run() {
       res.sendFile(path.join(__dirname, 'static', 'index.html'));
     });
 
-    // Serve static files from the 'static' directory
-    app.use(express.static(path.join(__dirname, 'static')));
-
-    // User model
-    const User = db.collection('users');
-
-    // Registration route
-    app.post('/api/register', async (req, res) => {
+     // Registration route
+     app.post('/api/register', async (req, res) => {
       const { username, password } = req.body;
 
       // Validate username and password
@@ -238,6 +232,14 @@ async function run() {
         res.status(500).json({ error: 'Internal server error' });
       }
     });
+
+    // Serve static files from the 'static' directory
+    app.use(express.static(path.join(__dirname, 'static')));
+
+    // User model
+    const User = db.collection('users');
+
+   
 
     // Create text index
     await db.collection('words').createIndex({ matherLanguage: 'text', german: 'text' });
