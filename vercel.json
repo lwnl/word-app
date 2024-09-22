@@ -12,8 +12,8 @@
       "dest": "/server.js"
     },
     {
-      "src": "/(index.html|login.html)",
-      "dest": "/static/$1"
+      "src": "/",
+      "dest": "/static/login.html"  // 默认访问 login.html
     },
     {
       "src": "/(.*)",
