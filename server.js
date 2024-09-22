@@ -198,6 +198,7 @@ async function run() {
 
     // Login route
     app.post('/api/login', async (req, res) => {
+      console.log('Login route hit:', req.body);
       const { username, password } = req.body;
       try {
         const user = await User.findOne({ username });
