@@ -33,22 +33,27 @@ const client = new MongoClient(uri, {
 });
 const dbName = "word-db";
 
-// // Express server route
-// app.get('/', (req, res) => {
-//   res.send('Hello, MongoDB with Express!');
+// 部署vercel不需要https
+// const httpsOptions = {
+//   key: fs.readFileSync('./cert/server.key'),
+//   cert: fs.readFileSync('./cert/server.crt')
+// };
+
+// // Create HTTPS server
+// https.createServer(httpsOptions, app).listen(PORT, async () => {
+//   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+//   await connectToMongoDB();
+//   await run()
 // });
 
-// SSL Certificate (provide the correct path to your certificates)
-const httpsOptions = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
+const http = require('http');
 
-// Create HTTPS server
-https.createServer(httpsOptions, app).listen(PORT, async () => {
-  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+const server = http.createServer(app);
+
+server.listen(PORT, async () => {
+  console.log(`Server is running`);
   await connectToMongoDB();
-  await run()
+  await run();
 });
 
 // search and update word properties

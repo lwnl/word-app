@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let host = 'https://localhost:3000'
+    host = 'https://word-p4n7e5ib4-leo-wangs-projects-6348417b.vercel.app'
+
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
@@ -14,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('https://localhost:3000/api/login', {
+            const response = await fetch(`${host}/api/login`, {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    window.location.href = 'https://localhost:3000/index.html'; // Redirect to homepage
+                    window.location.href = `${host}/index.html`; // Redirect to homepage
                     localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
@@ -53,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('https://localhost:3000/api/register', {
+            const response = await fetch(`${host}/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
