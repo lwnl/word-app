@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     let host = 'https://localhost:3000'
-    host = 'https://word-p4n7e5ib4-leo-wangs-projects-6348417b.vercel.app'
+    host = window.location.origin
 
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');

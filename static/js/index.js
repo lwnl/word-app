@@ -1,6 +1,6 @@
 // Initialize the application once the DOM is fully loaded
 let host = 'https://localhost:3000'
-host = 'https://word-p4n7e5ib4-leo-wangs-projects-6348417b.vercel.app'
+host = window.location.origin
 
 document.addEventListener('DOMContentLoaded', () => {
     const userData = new WordApp
