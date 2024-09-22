@@ -15,6 +15,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
+console.log('server.js is running')
+
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cors({
