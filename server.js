@@ -1,10 +1,3 @@
-// "builds": [
-//   {
-//     "src": "server.js",
-//     "use": "@vercel/node"
-//   }
-// ],
-
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
@@ -24,7 +17,10 @@ const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment v
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS
+app.use(cors({
+  origin: 'https://wordapp-one.vercel.app', // 替换为你的前端 URL
+  credentials: true
+}));
 app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
