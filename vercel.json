@@ -13,7 +13,7 @@
     },
     {
       "src": "/",
-      "dest": "/static/login.html"  // 默认访问 login.html
+      "dest": "/static/login.html" 
     },
     {
       "src": "/(.*)",
