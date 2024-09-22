@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let host = 'https://localhost:3000'
     host = window.location.origin
-
+    console.log('host:', host)
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');

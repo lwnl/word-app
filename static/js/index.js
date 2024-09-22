@@ -3,6 +3,7 @@ let host = 'https://localhost:3000'
 host = window.location.origin
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('host:', host)
     const userData = new WordApp
     userData.init()
     // Display username in the span

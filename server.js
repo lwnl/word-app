@@ -34,12 +34,13 @@ const client = new MongoClient(uri, {
 const dbName = "word-db";
 
 // 部署vercel不需要https
+// Create HTTPS server
 // const httpsOptions = {
 //   key: fs.readFileSync('./cert/server.key'),
 //   cert: fs.readFileSync('./cert/server.crt')
 // };
 
-// // Create HTTPS server
+
 // https.createServer(httpsOptions, app).listen(PORT, async () => {
 //   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
 //   await connectToMongoDB();
