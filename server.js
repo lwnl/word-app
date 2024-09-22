@@ -37,28 +37,28 @@ const client = new MongoClient(uri, {
 const dbName = "word-db";
 
 // local deployment
-const httpsOptions = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
+// const httpsOptions = {
+//   key: fs.readFileSync('./cert/server.key'),
+//   cert: fs.readFileSync('./cert/server.crt')
+// };
 
 
-https.createServer(httpsOptions, app).listen(PORT, async () => {
-  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-  await connectToMongoDB();
-  await run()
-});
+// https.createServer(httpsOptions, app).listen(PORT, async () => {
+//   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+//   await connectToMongoDB();
+//   await run()
+// });
 
 // vercel deployment no https 
-// const http = require('http');
+const http = require('http');
 
-// const server = http.createServer(app);
+const server = http.createServer(app);
 
-// server.listen(PORT, async () => {
-//   console.log(`Server is running`);
-//   await connectToMongoDB();
-//   await run();
-// });
+server.listen(PORT, async () => {
+  console.log(`Server is running`);
+  await connectToMongoDB();
+  await run();
+});
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
