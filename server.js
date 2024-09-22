@@ -1,17 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion} = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
+let db; 
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = 3000;
+const PORT =  process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware
@@ -20,9 +21,35 @@ app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
-const uri = "mongodb://localhost:27017";
+const uri = "mongodb+srv://liangwangfr:8hBWZ6oKpkWOxwIL@cluster0.hlrg2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    // strict: true,
+    deprecationErrors: true,
+  }
+});
 const dbName = "word-db";
-const client = new MongoClient(uri);
+
+// // Express server route
+// app.get('/', (req, res) => {
+//   res.send('Hello, MongoDB with Express!');
+// });
+
+// SSL Certificate (provide the correct path to your certificates)
+const httpsOptions = {
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt')
+};
+
+// Create HTTPS server
+https.createServer(httpsOptions, app).listen(PORT, async () => {
+  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+  await connectToMongoDB();
+  await run()
+});
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
@@ -31,7 +58,7 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   console.log('Updating word:', { id, updatedFields }); // 添加调试日志
 
   try {
-    const db = await connectToDb();
+    const db = await connectToMongoDB();
     const collection = db.collection('words');
     const result = await collection.updateOne(
       { _id: new ObjectId(id), username: req.user.username },
@@ -39,7 +66,7 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
-      res.status(404).send('Word not found');
+      return res.status(404).send('Word not found');
     } else {
       const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
       res.status(200).json(updatedWord);
@@ -50,31 +77,22 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   }
 });
 
-run().catch(console.dir);
+// run().catch(console.dir);
 
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-// HTTPS server configuration
-const options = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
-
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
-});
-
-async function connectToDb() {
-  try {
-    await client.connect();
-    console.log("Connected correctly to MongoDB");
-    return client.db(dbName);
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1);
+// Function to connect to MongoDB
+async function connectToMongoDB() {
+  if (!db) {
+    try {
+      await client.connect();
+      await client.db("admin").command({ ping: 1 });
+      console.log("Successfully connected to MongoDB!");
+      db = client.db(dbName); // 只需要设置一次数据库实例
+    } catch (error) {
+      console.error("Failed to connect to MongoDB:", error);
+      throw error;
+    }
   }
+  return db; // 返回数据库实例
 }
 
 function checkAuthAndRedirect(req, res, next) {
@@ -93,7 +111,7 @@ function checkAuthAndRedirect(req, res, next) {
 
 // Delete a word
 async function deleteWord(id) {
-  const db = await connectToDb();
+  const db = await connectToMongoDB();
   const collection = db.collection('words');
   const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount === 1;
@@ -115,7 +133,7 @@ function authenticateToken(req, res, next) {
 
 async function run() {
   try {
-    const db = await connectToDb();
+    const db = await connectToMongoDB();
 
     // Redirect root URL to login.html 
     app.get('/', checkAuthAndRedirect);
@@ -268,7 +286,7 @@ async function run() {
       }
 
       try {
-        const db = await connectToDb();
+        const db = await connectToMongoDB();
         const collection = db.collection('words');
 
         const result = await collection.updateOne(
