@@ -17,7 +17,7 @@
     },
     {
       "src": "/",
-      "dest": "/public/login.html"
+      "dest": "server.js" 
     },
     {
       "src": "/(.*)",
