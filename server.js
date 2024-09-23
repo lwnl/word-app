@@ -155,7 +155,7 @@ async function run() {
     // Redirect root URL to login.html 
     app.get('/', checkAuthAndRedirect);
     app.get('/index.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'static', 'index.html'));
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
     });
 
      // Registration route
@@ -242,8 +242,8 @@ async function run() {
       }
     });
 
-    // Serve static files from the 'static' directory
-    app.use(express.static(path.join(__dirname, 'static')));
+    // Serve static files from the 'public' directory
+    app.use(express.static(path.join(__dirname, 'public')));
 
     // User model
     const User = db.collection('users');
