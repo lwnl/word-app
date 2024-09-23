@@ -13,11 +13,11 @@
     },
     {
       "src": "/",
-      "dest": "/static/login.html"
+      "dest": "/public/login.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/static/$1"
+      "dest": "/public/$1"
     }
   ]
 }
