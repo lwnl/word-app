@@ -243,7 +243,7 @@ async function run() {
     });
 
     // Serve public files from the 'public' directory
-    app.use(express.public(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'public')));
 
     // User model
     const User = db.collection('users');
