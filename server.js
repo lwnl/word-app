@@ -1,7 +1,7 @@
 // vercel.json
 // {
-//   "src": "public/**/*",
-//   "use": "@vercel/public"
+//   "src": "static/**/*",
+//   "use": "@vercel/static"
 // }
 
 const express = require('express');
@@ -155,7 +155,7 @@ async function run() {
     // Redirect root URL to login.html 
     app.get('/', checkAuthAndRedirect);
     app.get('/index.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      res.sendFile(path.join(__dirname, 'static', 'index.html'));
     });
 
      // Registration route
@@ -242,8 +242,8 @@ async function run() {
       }
     });
 
-    // Serve public files from the 'public' directory
-    app.use(express.static(path.join(__dirname, 'public')));
+    // Serve static files from the 'static' directory
+    app.use(express.static(path.join(__dirname, 'static')));
 
     // User model
     const User = db.collection('users');
