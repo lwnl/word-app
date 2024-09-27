@@ -16,5 +16,8 @@
     "mongodb": "^6.9.0",
     "sqlite3": "^5.0.0",
     "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4"
   }
 }
