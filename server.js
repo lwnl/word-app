@@ -1,34 +1,23 @@
-// vercel.json
-// {
-//   "src": "static/**/*",
-//   "use": "@vercel/static"
-// }
-
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
-const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion} = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
-let db;
+let db; 
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  process.env.PORT || 3000;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
-
-console.log('server.js is running')
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors({
-  origin: '*', // 替换为你的前端 URL
-  credentials: true
-}));
+app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
@@ -44,28 +33,22 @@ const client = new MongoClient(uri, {
 });
 const dbName = "word-db";
 
-// local deployment
-// const httpsOptions = {
-//   key: fs.readFileSync('./cert/server.key'),
-//   cert: fs.readFileSync('./cert/server.crt')
-// };
-
-
-// https.createServer(httpsOptions, app).listen(PORT, async () => {
-//   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-//   await connectToMongoDB();
-//   await run()
+// // Express server route
+// app.get('/', (req, res) => {
+//   res.send('Hello, MongoDB with Express!');
 // });
 
-// vercel deployment no https 
-const http = require('http');
+// SSL Certificate (provide the correct path to your certificates)
+const httpsOptions = {
+  key: fs.readFileSync('./cert/server.key'),
+  cert: fs.readFileSync('./cert/server.crt')
+};
 
-const server = http.createServer(app);
-
-server.listen(PORT, async () => {
-  console.log(`Server is running`);
+// Create HTTPS server
+https.createServer(httpsOptions, app).listen(PORT, async () => {
+  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
   await connectToMongoDB();
-  await run();
+  await run()
 });
 
 // search and update word properties
@@ -155,11 +138,17 @@ async function run() {
     // Redirect root URL to login.html 
     app.get('/', checkAuthAndRedirect);
     app.get('/index.html', (req, res) => {
-      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+      res.sendFile(path.join(__dirname, 'static', 'index.html'));
     });
 
-     // Registration route
-     app.post('/api/register', async (req, res) => {
+    // Serve static files from the 'static' directory
+    app.use(express.static(path.join(__dirname, 'static')));
+
+    // User model
+    const User = db.collection('users');
+
+    // Registration route
+    app.post('/api/register', async (req, res) => {
       const { username, password } = req.body;
 
       // Validate username and password
@@ -206,7 +195,6 @@ async function run() {
 
     // Login route
     app.post('/api/login', async (req, res) => {
-      console.log('Login route hit:', req.body);
       const { username, password } = req.body;
       try {
         const user = await User.findOne({ username });
@@ -241,14 +229,6 @@ async function run() {
         res.status(500).json({ error: 'Internal server error' });
       }
     });
-
-    // Serve static files from the 'public' directory
-    app.use(express.static(path.join(__dirname, 'public')));
-
-    // User model
-    const User = db.collection('users');
-
-   
 
     // Create text index
     await db.collection('words').createIndex({ matherLanguage: 'text', german: 'text' });
@@ -346,5 +326,3 @@ async function run() {
     console.error(err.stack);
   }
 }
-
-// module.exports = app;
