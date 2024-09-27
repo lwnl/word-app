@@ -21,7 +21,7 @@ app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
 // MongoDB connection configuration
-const uri = "mongodb+srv://liangwangfr:8hBWZ6oKpkWOxwIL@cluster0.hlrg2.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
