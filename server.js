@@ -223,7 +223,7 @@ async function run() {
         // Set the token as a cookie
         res.cookie('token', token, {
           httpOnly: true,  // Prevent access by JavaScript
-          secure: false,    // Ensure the cookie is sent over HTTPS only
+          secure: false,     // Ensure the cookie is sent over HTTPS only
           sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
           maxAge: 3600000  // 1 hour validity
         });
