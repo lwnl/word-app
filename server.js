@@ -33,23 +33,25 @@ const client = new MongoClient(uri, {
 });
 const dbName = "word-db";
 
-// // Express server route
-// app.get('/', (req, res) => {
-//   res.send('Hello, MongoDB with Express!');
-// });
+// http version
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+run().catch(console.dir);
 
+// https version
 // SSL Certificate (provide the correct path to your certificates)
-const httpsOptions = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
+// const httpsOptions = {
+//   key: fs.readFileSync('./cert/server.key'),
+//   cert: fs.readFileSync('./cert/server.crt')
+// };
 
 // Create HTTPS server
-https.createServer(httpsOptions, app).listen(PORT, async () => {
-  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-  await connectToMongoDB();
-  await run()
-});
+// https.createServer(httpsOptions, app).listen(PORT, async () => {
+//   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+//   await connectToMongoDB();
+//   await run()
+// });
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
@@ -77,7 +79,7 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// run().catch(console.dir);
+
 
 // Function to connect to MongoDB
 async function connectToMongoDB() {
