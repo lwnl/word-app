@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
+const { version } = require('os');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -52,19 +53,20 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
 
 run().catch(console.dir);
 
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
+// http version
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
 
 // HTTPS server configuration
-const options = {
-  key: fs.readFileSync('./cert/server.key'),
-  cert: fs.readFileSync('./cert/server.crt')
-};
+// const options = {
+//   key: fs.readFileSync('./cert/server.key'),
+//   cert: fs.readFileSync('./cert/server.crt')
+// };
 
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
-});
+// https.createServer(options, app).listen(PORT, () => {
+//   console.log(`Server is running on https://localhost:${PORT}`);
+// });
 
 async function connectToDb() {
   try {
