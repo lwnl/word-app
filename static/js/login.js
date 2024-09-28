@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let host = 'http://localhost:3000'
+    host = 'http://34.89.176.86:3000' // google cloud vm external ip
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
@@ -14,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch(`${host}/api/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    window.location.href = 'http://localhost:3000/index.html'; // Redirect to homepage
+                    window.location.href = `${host}/index.html`; // Redirect to homepage
                     localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
@@ -53,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch(`${host}/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
