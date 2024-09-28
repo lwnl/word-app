@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let host = 'http://localhost:3000'
-    host = 'http://34.89.176.86:3000' // google cloud vm external ip
+    let hostIp = 'http://localhost'
+    hostIp = 'http://34.89.176.86'
+    let port = '3000'
+    const host = `${hostIp}:${port}`// google cloud vm external ip
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 credentials: 'include',  // 包括 cookie
                 body: JSON.stringify({ username, password }),
-                
+
             });
 
             if (response.ok) {

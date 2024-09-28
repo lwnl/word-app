@@ -35,7 +35,7 @@ const dbName = "word-db";
 
 // http version
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+  console.log(`Server is running on http://34.89.176.86:${PORT}`);
 });
 
 run().catch(console.dir);
