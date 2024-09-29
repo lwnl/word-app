@@ -97,6 +97,24 @@ async function connectToMongoDB() {
       throw error;
     }
   }
+  // Check SSL certificate expiration date
+  exec("openssl x509 -enddate -noout -in ./cert/fullchain.pem", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error checking certificate: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return;
+    }
+
+    // Parse and log the expiration date
+    const expirationDate = stdout.split('=')[1].trim();
+    console.log(
+      `SSL Certificate expiration date: ${expirationDate}
+Please renew when it expires
+sudo certbot certonly --manual --preferred-challenges=dns -d yourdomain.com`);
+  });
   return db; // 返回数据库实例
 }
 
@@ -230,24 +248,6 @@ async function run() {
           maxAge: 3600000  // 1 hour validity
         });
 
-        // Check SSL certificate expiration date
-        exec("openssl x509 -enddate -noout -in ./cert/fullchain.pem", (error, stdout, stderr) => {
-          if (error) {
-            console.error(`Error checking certificate: ${error.message}`);
-            return;
-          }
-          if (stderr) {
-            console.error(`stderr: ${stderr}`);
-            return;
-          }
-
-          // Parse and log the expiration date
-          const expirationDate = stdout.split('=')[1].trim();
-          console.log(
-`SSL Certificate expiration date: ${expirationDate}
-Please renew when it expires
-sudo certbot certonly --manual --preferred-challenges=dns -d yourdomain.com`);
-        });
         return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
