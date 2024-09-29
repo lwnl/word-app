@@ -17,11 +17,12 @@
 	•	Maintain login status after login until logout. - ok
 	•	Token strategy: stored temporarily in cookies with secure settings applied on the backend. - ok
 	•	Implement HTTPS access by authorizing server.crt using rootCA.crt.- ok
-	•	在添加单词时增加匹配和提示功能， 待完善
-	•	查找后，有更改功能和编辑功能
-	•	用axios请求
-	•	更改自动匹配
-	•	修复更改类别和更改单词属性协调性
+	•	Add matching and suggestion features when adding words. - OK
+	•	domain application - ok
+	•	hosting website by google cloud -ok
+	•	hosting website using https
+	•	After searching, implement the update and edit functionalities. (To be improved)
+
 
 
 
