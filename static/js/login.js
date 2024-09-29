@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let hostIp = 'http://localhost'
     hostIp = 'http://34.89.176.86'
-    let port = '3000'
+    let port = '80'
     const host = `${hostIp}:${port}`// google cloud vm external ip
     // const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
