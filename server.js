@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
+const { exec } = require('child_process');
+
 let db;
 require('dotenv').config(); // Load environment variables
 
@@ -227,7 +229,7 @@ async function run() {
           sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
           maxAge: 3600000  // 1 hour validity
         });
-        
+
         // Check SSL certificate expiration date
         exec("openssl x509 -enddate -noout -in ./cert/fullchain.pem", (error, stdout, stderr) => {
           if (error) {
