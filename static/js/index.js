@@ -1,5 +1,5 @@
 // Initialize the application once the DOM is fully loaded
-let hostIp = 'http://localhost'
+let hostIp = 'https://localhost'
 hostIp = 'https://wordapp.liangw.de'
 let port = '443'
 const host = `${hostIp}:${port}`

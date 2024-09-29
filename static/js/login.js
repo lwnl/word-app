@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let hostIp = 'http://localhost'
+    let hostIp = 'https://localhost'
     hostIp = 'https://wordapp.liangw.de'
     let port = '443'
     const host = `${hostIp}:${port}`// google cloud vm external ip
