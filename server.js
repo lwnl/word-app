@@ -12,7 +12,7 @@ let db;
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT =  process.env.PORT || 80;
+const PORT =  process.env.PORT || 443;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware
@@ -34,25 +34,25 @@ const client = new MongoClient(uri, {
 const dbName = "word-db";
 
 // http version
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
-});
+// app.listen(PORT, '0.0.0.0', () => {
+//   console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
+// });
 
 run().catch(console.dir);
 
 // https version
-// SSL Certificate (provide the correct path to your certificates)
-// const httpsOptions = {
-//   key: fs.readFileSync('./cert/server.key'),
-//   cert: fs.readFileSync('./cert/server.crt')
-// };
+const httpsOptions = {
+  key: fs.readFileSync('./cert/privkey.pem'),
+  cert: fs.readFileSync('./cert/fullchain.pem')
+};
 
-// Create HTTPS server
-// https.createServer(httpsOptions, app).listen(PORT, async () => {
-//   console.log(`HTTPS Server is running on https://localhost:${PORT}`);
-//   await connectToMongoDB();
-//   await run()
-// });
+// 创建 HTTPS 服务器
+const httpsServer = https.createServer(httpsOptions, app);
+
+// 启动 HTTPS 服务器
+httpsServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+});
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
