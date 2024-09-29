@@ -20,7 +20,8 @@
 	•	Add matching and suggestion features when adding words. - OK
 	•	domain application - ok
 	•	hosting website by google cloud -ok
-	•	hosting website using https
+	•	hosting website using https - ok
+	•	https certificate automatic update - 
 	•	After searching, implement the update and edit functionalities. (To be improved)
 
 
