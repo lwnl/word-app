@@ -1,18 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
-const { MongoClient, ObjectId, ServerApiVersion} = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
-let db; 
+let db;
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT =  process.env.PORT || 443;
+const PORT = process.env.PORT || 443;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware
@@ -226,6 +226,22 @@ async function run() {
           secure: true,     // Ensure the cookie is sent over HTTPS only
           sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
           maxAge: 3600000  // 1 hour validity
+        });
+        
+        // Check SSL certificate expiration date
+        exec("openssl x509 -enddate -noout -in ./cert/fullchain.pem", (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error checking certificate: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            return;
+          }
+
+          // Parse and log the expiration date
+          const expirationDate = stdout.split('=')[1].trim();
+          console.log(`SSL Certificate expiration date: ${expirationDate}`);
         });
         return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
