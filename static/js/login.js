@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     let hostIp = 'https://localhost'
-    hostIp = 'https://34.89.159.254'
+    hostIp = 'https://wordapp.liangw.de'
     let port = '443'
     const host = `${hostIp}:${port}`// google cloud vm external ip
     // const loginForm = document.getElementById('loginForm');

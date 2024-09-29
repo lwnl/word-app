@@ -37,7 +37,7 @@ const dbName = "word-db";
 
 // http version
 // app.listen(PORT, '0.0.0.0', () => {
-//   console.log(`Server is running on http://34.89.159.254:${PORT} or http://localhost:${PORT}`);
+//   console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
 // });
 
 run().catch(console.dir);
@@ -53,7 +53,7 @@ const httpsServer = https.createServer(httpsOptions, app);
 
 // 启动 HTTPS 服务器
 httpsServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`HTTPS Server is running on https://34.89.159.254:${PORT} or https://localhost:${PORT}`);
+  console.log(`HTTPS Server is running on https://wordapp.liangw.de:${PORT} or https://localhost:${PORT}`);
 });
 
 // search and update word properties
