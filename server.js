@@ -243,7 +243,10 @@ async function run() {
 
           // Parse and log the expiration date
           const expirationDate = stdout.split('=')[1].trim();
-          console.log(`SSL Certificate expiration date: ${expirationDate}`);
+          console.log(
+`SSL Certificate expiration date: ${expirationDate}
+Please renew when it expires
+sudo certbot certonly --manual --preferred-challenges=dns -d yourdomain.com`);
         });
         return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
