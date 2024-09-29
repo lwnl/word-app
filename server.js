@@ -35,7 +35,7 @@ const dbName = "word-db";
 
 // http version
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://wordapp.liangw.de :${PORT} or http://localhost:${PORT}`);
+  console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
 });
 
 run().catch(console.dir);
