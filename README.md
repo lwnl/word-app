@@ -21,7 +21,8 @@
 	•	domain application - ok
 	•	hosting website by google cloud -ok
 	•	hosting website using https - ok
-	•	https certificate automatic update - 
+	•	Check certificate expiration date each time login - ok
+	•	https certificate automatic update - not possible
 	•	After searching, implement the update and edit functionalities. (To be improved)
 
 
