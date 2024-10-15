@@ -26,8 +26,10 @@
 	•	rewrite with React
 	•	fracion
 	•	修改add单词策略，只要德语或者中文重复就报警
-	•	自动重启vm，自动运行项目
+	•	自动更新github变更
+	•	all words 根据单词的状态显示
 	•	After searching, implement the update and edit functionalities. (To be improved)
+
 
 
 

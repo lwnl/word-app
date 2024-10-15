@@ -206,16 +206,6 @@ async function run() {
       }
     });
 
-    // Logout route
-    app.post('/api/logout', (req, res) => {
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'Strict'
-      });
-      res.status(200).json({ message: 'Logout successful' });
-    });
-
     // Login route
     app.post('/api/login', async (req, res) => {
       const { username, password } = req.body;
@@ -253,6 +243,18 @@ async function run() {
         res.status(500).json({ error: 'Internal server error' });
       }
     });
+
+    // Logout route
+    app.post('/api/logout', (req, res) => {
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict'
+      });
+      res.status(200).json({ message: 'Logout successful' });
+    });
+
+
 
     // Create text index
     await db.collection('words').createIndex({ matherLanguage: 'text', german: 'text' });
