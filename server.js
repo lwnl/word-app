@@ -91,7 +91,7 @@ async function connectToMongoDB() {
       await client.connect();
       await client.db("admin").command({ ping: 1 });
       console.log("Successfully connected to MongoDB!");
-      db = client.db(dbName); // 只需要设置一次数据库实例
+      db = client.db(dbName); 
     } catch (error) {
       console.error("Failed to connect to MongoDB:", error);
       throw error;
