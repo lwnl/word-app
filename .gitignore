@@ -8,7 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules/
-# cert/
+cert/
 temp/
 dist
 dist-ssr
@@ -27,7 +27,7 @@ dist-ssr
 *.sw?
 
 # Keys
-# server.key
-# server.cert
+server.key
+server.cert
 
 
