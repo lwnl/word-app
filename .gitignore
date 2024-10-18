@@ -27,7 +27,7 @@ dist-ssr
 *.sw?
 
 # Keys
-server.key
-server.cert
+# server.key
+# server.cert
 
 
