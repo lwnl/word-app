@@ -14,7 +14,7 @@ let db;
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 // Middleware

@@ -1,8 +1,8 @@
 // Initialize the application once the DOM is fully loaded
 let hostIp = 'https://localhost'
 hostIp = 'https://wordapp.liangw.de'
-let port = '443'
-const host = `${hostIp}:${port}`
+const PORT = process.env.PORT;
+const host = `${hostIp}:${PORT}`
 document.addEventListener('DOMContentLoaded', () => {
     const userData = new WordApp
     userData.init()
