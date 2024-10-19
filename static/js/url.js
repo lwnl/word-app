@@ -1,5 +1,5 @@
-const PORT = 443
+const PORT = 8443
 let hostIp = 'https://localhost'
-hostIp = 'https://wordapp.liangw.de'
+hostIp = 'https://wordapp-test.liangw.de'
 
 export const HOST = `${hostIp}:${PORT}`
