@@ -1,4 +1,4 @@
-const { HOST: ImportedHOST } = require('./url.js');
+import { HOST as ImportedHOST } from './url.js'
 
 document.addEventListener('DOMContentLoaded', () => {
     const host = ImportedHOST 

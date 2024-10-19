@@ -1,6 +1,5 @@
 const PORT = 443
 let hostIp = 'https://localhost'
 hostIp = 'https://wordapp.liangw.de'
-const HOST = `${hostIp}:${PORT}`
 
-module.exports = { HOST }
+export const HOST = `${hostIp}:${PORT}`

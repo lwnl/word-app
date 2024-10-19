@@ -1,5 +1,5 @@
 // Initialize the application once the DOM is fully loaded
-const { HOST: ImportedHOST } = require('./url.js');
+import { HOST as ImportedHOST } from './url.js'
 const host = ImportedHOST 
 document.addEventListener('DOMContentLoaded', () => {
     const userData = new WordApp
