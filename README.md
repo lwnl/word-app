@@ -23,7 +23,10 @@
 	•	hosting website using https - ok
 	•	Check certificate expiration date each time login - ok
 	•	https certificate automatic update - not possible
-	•	rewrite with React
+	•	在vm上开辟新的https端口，ok， 
+		在vps上安装Nginx/caddy
+		通过Nginx/caddy将不同的测试用的域名分配给测试用的端口
+		当测试没有问题后，合并测试分支到目标分支，通过server.js更新不同的服务器
 	•	fracion
 	•	修改add单词策略，只要德语或者中文重复就报警
 	•	自动更新github变更
