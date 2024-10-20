@@ -31,6 +31,6 @@ server.key
 server.cert
 
 # port
-url.js
+static/js/url.js
 
 
