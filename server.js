@@ -53,7 +53,7 @@ const httpsServer = https.createServer(httpsOptions, app);
 
 // 启动 HTTPS 服务器
 httpsServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`HTTPS Server is running on https://wordapp.liangw.de:${PORT} or https://localhost:${PORT}`);
+  console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
 });
 
 // search and update word properties
