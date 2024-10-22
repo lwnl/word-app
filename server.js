@@ -19,7 +19,7 @@ const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment v
 
 const corsOptions = {
   origin: [
-      'http://wordapp.liangw.de',
+      // 'http://wordapp.liangw.de',
       // 'http://wordapp.liangw.de:8448'
   ],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
