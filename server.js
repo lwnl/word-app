@@ -49,9 +49,9 @@ const client = new MongoClient(uri, {
 const dbName = "word-db";
 
 // http version
-// app.listen(PORT, '0.0.0.0', () => {
-//   console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
-// });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
+});
 
 run().catch(console.dir);
 
@@ -63,12 +63,12 @@ run().catch(console.dir);
 // };
 
 // 创建 HTTPS 服务器
-const httpsServer = https.createServer(httpsOptions, app);
+// const httpsServer = https.createServer(httpsOptions, app);
 
 // 启动 HTTPS 服务器
-httpsServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
-});
+// httpsServer.listen(PORT, '0.0.0.0', () => {
+//   console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
+// });
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
