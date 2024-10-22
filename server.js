@@ -57,10 +57,10 @@ run().catch(console.dir);
 
 
 // https version
-// const httpsOptions = {
-//   key: fs.readFileSync('./cert/privkey.pem'),
-//   cert: fs.readFileSync('./cert/fullchain.pem')
-// };
+const httpsOptions = {
+  key: fs.readFileSync('./cert/privkey.pem'),
+  cert: fs.readFileSync('./cert/fullchain.pem')
+};
 
 // 创建 HTTPS 服务器
 const httpsServer = https.createServer(httpsOptions, app);
