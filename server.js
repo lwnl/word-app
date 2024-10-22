@@ -29,11 +29,11 @@ const corsOptions = {
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors(corsOptions)); // Enable CORS
+app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
 // Handle pre-flight requests for CORS
-app.options('*', cors(corsOptions));
+// app.options('*', cors(corsOptions));
 
 // MongoDB connection configuration
 const uri = process.env.MONGODB_URI
