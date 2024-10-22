@@ -17,10 +17,20 @@ const app = express();
 const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
+const corsOptions = {
+  origin: 'https://wordapp.liangw.de:8448', // 前端应用的真实域名
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true, // 允许发送凭证（如 Cookies）
+};
+
+
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS
+app.use(cors(corsOptions)); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
+
+// Handle pre-flight requests for CORS
+app.options('*', cors(corsOptions));
 
 // MongoDB connection configuration
 const uri = process.env.MONGODB_URI
