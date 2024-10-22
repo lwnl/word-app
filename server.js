@@ -55,6 +55,7 @@ const dbName = "word-db";
 
 run().catch(console.dir);
 
+
 // https version
 const httpsOptions = {
   key: fs.readFileSync('./cert/privkey.pem'),
