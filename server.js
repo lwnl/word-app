@@ -17,19 +17,19 @@ const app = express();
 const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
-// const corsOptions = {
-//   origin: [
-//       'http://wordapp.liangw.de',
-//       'http://wordapp.liangw.de:8448'
-//   ],
-//   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-//   credentials: true,
-// };
+const corsOptions = {
+  origin: [
+      'http://wordapp.liangw.de',
+      'http://wordapp.liangw.de:8448'
+  ],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true,
+};
 
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
-app.use(cors()); // Enable CORS
+app.use(cors(corsOptions)); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
 // Handle pre-flight requests for CORS
