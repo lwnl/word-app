@@ -18,9 +18,12 @@ const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
 const corsOptions = {
-  origin: 'https://wordapp.liangw.de:8448', // 前端应用的真实域名
+  origin: [
+      'https://wordapp.liangw.de',
+      'https://wordapp.liangw.de:8448'
+  ],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  credentials: true, // 允许发送凭证（如 Cookies）
+  credentials: true,
 };
 
 
