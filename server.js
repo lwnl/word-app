@@ -17,10 +17,24 @@ const app = express();
 const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
 
+// const corsOptions = {
+//   origin: [
+//       // 'http://wordapp.liangw.de',
+//       // 'http://wordapp.liangw.de:8448'
+//   ],
+//   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+//   credentials: true,
+// };
+
+
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
+// app.use(cors(corsOptions)); // Enable CORS
 app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
+
+// Handle pre-flight requests for CORS
+// app.options('*', cors(corsOptions));
 
 // MongoDB connection configuration
 const uri = process.env.MONGODB_URI
@@ -36,25 +50,26 @@ const client = new MongoClient(uri, {
 const dbName = "word-db";
 
 // http version
-// app.listen(PORT, '0.0.0.0', () => {
-//   console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
-// });
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
+});
 
 run().catch(console.dir);
 
+
 // https version
-const httpsOptions = {
-  key: fs.readFileSync('./cert/privkey.pem'),
-  cert: fs.readFileSync('./cert/fullchain.pem')
-};
+// const httpsOptions = {
+//   key: fs.readFileSync('./cert/privkey.pem'),
+//   cert: fs.readFileSync('./cert/fullchain.pem')
+// };
 
 // 创建 HTTPS 服务器
-const httpsServer = https.createServer(httpsOptions, app);
+// const httpsServer = https.createServer(httpsOptions, app);
 
 // 启动 HTTPS 服务器
-httpsServer.listen(PORT, '0.0.0.0', () => {
-  console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
-});
+// httpsServer.listen(PORT, '0.0.0.0', () => {
+//   console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
+// });
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
