@@ -17,11 +17,23 @@
 	•	Maintain login status after login until logout. - ok
 	•	Token strategy: stored temporarily in cookies with secure settings applied on the backend. - ok
 	•	Implement HTTPS access by authorizing server.crt using rootCA.crt.- ok
-	•	在添加单词时增加匹配和提示功能， 待完善
-	•	查找后，有更改功能和编辑功能
-	•	用axios请求
-	•	更改自动匹配
-	•	修复更改类别和更改单词属性协调性
+	•	Add matching and suggestion features when adding words. - OK
+	•	domain application - ok
+	•	hosting website by google cloud -ok
+	•	hosting website using https - ok
+	•	Check certificate expiration date each time login - ok
+	•	https certificate automatic update - not possible
+	•	在vm上开辟新的https端口，ok， 
+		在vps上安装Nginx/caddy
+		通过Nginx/caddy将不同的测试用的域名分配给测试用的端口
+		当测试没有问题后，合并测试分支到目标分支，通过server.js更新不同的服务器 -ok
+	•	查询单词增加修改功能
+	•	修改add单词策略，只要德语或者中文重复就报警
+	•	自动更新github变更
+	•	all words 根据单词的状态显示
+	•	After searching, implement the update and edit functionalities. (To be improved)
+
+
 
 
 

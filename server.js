@@ -1,29 +1,75 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser'); // 引入 cookie-parser
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient, ObjectId, ServerApiVersion } = require('mongodb');
 const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid');
 const https = require('https');
 const fs = require('fs');
-const { version } = require('os');
+const { exec } = require('child_process');
+
+let db;
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT;
 const SECRET_KEY = process.env.SECRET_KEY; // Read secret key from environment variables
+
+// const corsOptions = {
+//   origin: [
+//       // 'http://wordapp.liangw.de',
+//       // 'http://wordapp.liangw.de:8448'
+//   ],
+//   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+//   credentials: true,
+// };
+
 
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
+// app.use(cors(corsOptions)); // Enable CORS
 app.use(cors()); // Enable CORS
 app.use(cookieParser()); // 解析 cookie
 
+// Handle pre-flight requests for CORS
+// app.options('*', cors(corsOptions));
+
 // MongoDB connection configuration
-const uri = "mongodb://localhost:27017";
+const uri = process.env.MONGODB_URI
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    // strict: true,
+    deprecationErrors: true,
+  }
+});
 const dbName = "word-db";
-const client = new MongoClient(uri);
+
+// http version
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://wordapp.liangw.de:${PORT} or http://localhost:${PORT}`);
+});
+
+run().catch(console.dir);
+
+
+// https version
+// const httpsOptions = {
+//   key: fs.readFileSync('./cert/privkey.pem'),
+//   cert: fs.readFileSync('./cert/fullchain.pem')
+// };
+
+// 创建 HTTPS 服务器
+// const httpsServer = https.createServer(httpsOptions, app);
+
+// 启动 HTTPS 服务器
+// httpsServer.listen(PORT, '0.0.0.0', () => {
+//   console.log(`HTTPS Server is running on https://wordapp-test.liangw.de:${PORT} or https://localhost:${PORT}`);
+// });
 
 // search and update word properties
 app.patch('/api/words/:id', authenticateToken, async (req, res) => {
@@ -32,7 +78,7 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   console.log('Updating word:', { id, updatedFields }); // 添加调试日志
 
   try {
-    const db = await connectToDb();
+    const db = await connectToMongoDB();
     const collection = db.collection('words');
     const result = await collection.updateOne(
       { _id: new ObjectId(id), username: req.user.username },
@@ -40,7 +86,7 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
-      res.status(404).send('Word not found');
+      return res.status(404).send('Word not found');
     } else {
       const updatedWord = await collection.findOne({ _id: new ObjectId(id) });
       res.status(200).json(updatedWord);
@@ -51,32 +97,40 @@ app.patch('/api/words/:id', authenticateToken, async (req, res) => {
   }
 });
 
-run().catch(console.dir);
 
-// http version
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
 
-// HTTPS server configuration
-// const options = {
-//   key: fs.readFileSync('./cert/server.key'),
-//   cert: fs.readFileSync('./cert/server.crt')
-// };
-
-// https.createServer(options, app).listen(PORT, () => {
-//   console.log(`Server is running on https://localhost:${PORT}`);
-// });
-
-async function connectToDb() {
-  try {
-    await client.connect();
-    console.log("Connected correctly to MongoDB");
-    return client.db(dbName);
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    process.exit(1);
+// Function to connect to MongoDB
+async function connectToMongoDB() {
+  if (!db) {
+    try {
+      await client.connect();
+      await client.db("admin").command({ ping: 1 });
+      console.log("Successfully connected to MongoDB!");
+      db = client.db(dbName); 
+    } catch (error) {
+      console.error("Failed to connect to MongoDB:", error);
+      throw error;
+    }
   }
+  // Check SSL certificate expiration date
+  exec("openssl x509 -enddate -noout -in ./cert/fullchain.pem", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error checking certificate: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      return;
+    }
+
+    // Parse and log the expiration date
+    const expirationDate = stdout.split('=')[1].trim();
+    console.log(
+      `SSL Certificate expiration date: ${expirationDate}
+Please renew when it expires
+sudo certbot certonly --manual --preferred-challenges=dns -d yourdomain.com`);
+  });
+  return db; // 返回数据库实例
 }
 
 function checkAuthAndRedirect(req, res, next) {
@@ -95,7 +149,7 @@ function checkAuthAndRedirect(req, res, next) {
 
 // Delete a word
 async function deleteWord(id) {
-  const db = await connectToDb();
+  const db = await connectToMongoDB();
   const collection = db.collection('words');
   const result = await collection.deleteOne({ _id: new ObjectId(id) });
   return result.deletedCount === 1;
@@ -117,7 +171,7 @@ function authenticateToken(req, res, next) {
 
 async function run() {
   try {
-    const db = await connectToDb();
+    const db = await connectToMongoDB();
 
     // Redirect root URL to login.html 
     app.get('/', checkAuthAndRedirect);
@@ -167,16 +221,6 @@ async function run() {
       }
     });
 
-    // Logout route
-    app.post('/api/logout', (req, res) => {
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'Strict'
-      });
-      res.status(200).json({ message: 'Logout successful' });
-    });
-
     // Login route
     app.post('/api/login', async (req, res) => {
       const { username, password } = req.body;
@@ -204,15 +248,28 @@ async function run() {
         // Set the token as a cookie
         res.cookie('token', token, {
           httpOnly: true,  // Prevent access by JavaScript
-          secure: true,    // Ensure the cookie is sent over HTTPS only
+          secure: true,     // Ensure the cookie is sent over HTTPS only
           sameSite: 'Strict', // 放松 CSRF 防御，允许跨站点请求（如在登录后跳转）
           maxAge: 3600000  // 1 hour validity
         });
+
         return res.status(200).json({ message: 'Login successful', token }); // Only send one response
       } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
       }
     });
+
+    // Logout route
+    app.post('/api/logout', (req, res) => {
+      res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'Strict'
+      });
+      res.status(200).json({ message: 'Logout successful' });
+    });
+
+
 
     // Create text index
     await db.collection('words').createIndex({ matherLanguage: 'text', german: 'text' });
@@ -270,7 +327,7 @@ async function run() {
       }
 
       try {
-        const db = await connectToDb();
+        const db = await connectToMongoDB();
         const collection = db.collection('words');
 
         const result = await collection.updateOne(

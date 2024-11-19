@@ -1,5 +1,7 @@
+import { HOST as ImportedHOST } from './url.js'
+
 document.addEventListener('DOMContentLoaded', () => {
-    // const loginForm = document.getElementById('loginForm');
+    const host = ImportedHOST 
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
@@ -14,20 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch(`${host}/api/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',  // 包括 cookie
                 body: JSON.stringify({ username, password }),
-                
+
             });
 
             if (response.ok) {
                 const data = await response.json();
                 if (data.token) {
-                    window.location.href = 'http://localhost:3000/index.html'; // Redirect to homepage
+                    window.location.href = `${host}/index.html`; // Redirect to homepage
                     localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
@@ -53,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch(`${host}/api/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

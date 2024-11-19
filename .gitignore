@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules/
 cert/
+temp/
+ignore/
 dist
 dist-ssr
 *.local
@@ -29,6 +31,9 @@ dist-ssr
 # Keys
 server.key
 server.cert
+
+# port
+static/js/url.js
 
 
 .vercel
