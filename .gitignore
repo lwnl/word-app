@@ -34,4 +34,6 @@ server.cert
 # port
 static/js/url.js
 
+# ._* 无用文件
+._*
 
