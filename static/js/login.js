@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const host = ImportedHOST 
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
 
