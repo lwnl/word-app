@@ -1,6 +1,4 @@
 // Initialize the application once the DOM is fully loaded
-import { HOST as ImportedHOST } from './url.js'
-const host = ImportedHOST 
 document.addEventListener('DOMContentLoaded', () => {
     const userData = new WordApp
     userData.init()
@@ -22,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     credentials: 'include'
                 })
                 if (res.ok) {
-                    window.location.href = `${host}/login.html`;
+                    window.location.href = `/login.html`;
                 } else {
                     console.log('Logout failed')
                 }
@@ -75,7 +73,7 @@ class WordApp {
 
     async fetchWords(method) {
         try {
-            const response = await fetch(`${host}/api/words`, {
+            const response = await fetch(`/api/words`, {
                 method: 'GET',
                 credentials: 'include', // 确保包含 httpOnly cookie
             });
@@ -113,7 +111,7 @@ class WordApp {
             // 更新 UI
             this.handleCategoryChange();
             try {
-                const response = await fetch(`${host}/api/words/${id}/review`, {
+                const response = await fetch(`/api/words/${id}/review`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -204,7 +202,7 @@ class WordApp {
 
         try {
             // Check if the word already exists
-            const fetchResponse = await fetch(`${host}/api/words`, {
+            const fetchResponse = await fetch(`/api/words`, {
                 credentials: 'include' // 确保包含 httpOnly cookie
             });
             const words = await fetchResponse.json();
@@ -215,7 +213,7 @@ class WordApp {
             }
 
             // Add the new word to the server
-            const response = await fetch(`${host}/api/words`, {
+            const response = await fetch(`/api/words`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -387,7 +385,7 @@ class WordApp {
 
         // 从 API 获取该用户名下的所有单词
         if (this.words.length === 0) {
-            fetch(`${host}/api/words?username=${this.username}`, {
+            fetch(`/api/words?username=${this.username}`, {
                 credentials: 'include' // 确保包含 httpOnly cookie
             })
                 .then(response => response.json())
@@ -521,7 +519,7 @@ class WordApp {
     async deleteWord(id, liElement) {
         try {
             // Send DELETE request to the server
-            const response = await fetch(`${host}/api/words/${id}`, {
+            const response = await fetch(`/api/words/${id}`, {
                 method: 'DELETE',
                 credentials: 'include' // 确保包含 httpOnly cookie
             });
@@ -548,7 +546,7 @@ class WordApp {
             // 更新 UI
             this.handleCategoryChange();
             try {
-                const response = await fetch(`${host}/api/words/${id}/review`, {
+                const response = await fetch(`/api/words/${id}/review`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
