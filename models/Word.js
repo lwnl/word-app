@@ -19,4 +19,5 @@ const wordSchema = new mongoose.Schema({
   },
 })
 
-export const Word = mongoose.model('Word', wordSchema)
+const Word = mongoose.model('Word', wordSchema)
+export default Word
