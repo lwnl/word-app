@@ -1,5 +1,3 @@
-import { HOST as ImportedHOST } from './url.js'
-
 document.addEventListener('DOMContentLoaded', () => {
     const host = ImportedHOST 
     const loginBtn = document.getElementById('loginBtn');
