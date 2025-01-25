@@ -1,10 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';  // Import the User model
-import { SECRET_KEY } from './config.js';  // Import the SECRET_KEY from config
+import User from '../models/User.js';  
+import dotenv from 'dotenv';
+dotenv.config(); 
 
 const userRouter = express.Router();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 // Registration route
 userRouter.post('/api/register', async (req, res) => {
