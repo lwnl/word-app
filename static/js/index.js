@@ -71,10 +71,9 @@ class WordApp {
         this.subCategory = document.getElementById('subCategory');
     }
 
-    async fetchWords(method) {
+    async fetchWords() {
         try {
             const response = await fetch(`/api/words`, {
-                method: 'GET',
                 credentials: 'include', // 确保包含 httpOnly cookie
             });
             const data = await response.json();
