@@ -1,0 +1,109 @@
+文件内容
+wordapp.liangw.de {
+    reverse_proxy localhost:8448
+}
+
+
+wordapp-test.liangw.de {
+    reverse_proxy localhost:8443
+}
+
+相关命令
+sudo nano /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+sudo systemctl stop caddy
+sudo systemctl status caddy.service
+sudo journalctl -u caddy.service
+
+不休眠命令行
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
+自动执行脚本
+nano ~/start_update_word_app.sh
+
+脚本内容
+set -e  # 使脚本在任何命令失败时立即退出
+
+# 日志文件
+exec > /var/log/start_update_word_app.log 2>&1
+echo "Starting script at $(date)"
+
+# 函数：关闭现有的同名 screen 会话
+function close_existing_screens() {
+    local session_name
+    for session_name in "$@"; do
+        # 查找并关闭所有同名会话
+        for session in $(screen -ls | grep "$session_name" | awk '{print $1}'); do
+            if [[ -n "$session" ]]; then
+                echo "Closing existing screen session: $session"
+                screen -S "$session" -X quit
+            fi
+        done
+    done
+}
+
+# 函数：杀死占用指定端口的进程
+function kill_process_on_port() {
+    local port=$1
+    local pid=$(sudo lsof -t -i:$port)
+
+    if [ -n "$pid" ]; then
+        echo "Killing process on port $port with PID $pid..."
+        sudo kill -9 "$pid" || { echo "Failed to kill process on port $port"; exit 1; }
+    else
+        echo "No process found on port $port."
+    fi
+}
+
+# 关闭现有的同名 screen 会话
+close_existing_screens "update" "wordApp" "wordApp-test"
+
+# 杀死占用 3000 端口的进程
+kill_process_on_port 3000
+
+# 启动 caddy
+echo "Restarting caddy..."
+sudo systemctl restart caddy
+
+# 禁止休眠
+echo "no sleeping setting..."
+sudo systemctl mask sleep.target suspend.target hibernate.target
+
+# 获取 screen 命令的完整路径
+SCREEN_CMD=$(which screen)
+
+# 启动第一个 screen 会话并执行命令
+echo "Starting update session..."
+nohup $SCREEN_CMD -dmS update bash -c "cd /home/futushow_fr/updateWordApp; node server.js" > /home/futushow_fr/updateWordApp/log.txt 2>&1 &
+
+# 启动第二个 screen 会话并执行命令
+echo "Starting wordApp session..."
+nohup $SCREEN_CMD -dmS wordApp bash -c "cd /home/futushow_fr/projects/word-app; npm run dev" > /home/futushow_fr/projects/log.txt 2>&1 &
+
+# 启动第三个 screen 会话并执行命令
+echo "Starting wordApp-test session..."
+nohup $SCREEN_CMD -dmS wordApp-test bash -c "cd /home/futushow_fr/projects/word-app-test; npm run dev" > /home/futushow_fr/projects/log.txt >
+
+echo "All sessions started."
+
+开机自动启动
+sudo nano /etc/systemd/system/start_update_word_app.service
+sudo systemctl daemon-reload
+sudo systemctl restart start_update_word_app.service
+
+脚本内容
+[Unit]
+Description=Start Update Word App
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/bin/bash /home/futushow_fr/start_update_word_app.sh
+WorkingDirectory=/home/futushow_fr
+Environment=HOME=/home/futushow_fr
+StandardOutput=append:/var/log/start_update_word_app.log
+StandardError=append:/var/log/start_update_word_app_error.log
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,7 @@ dist
 dist-ssr
 *.local
 
+
 # Editor directories and files
 .env
 .vscode/*
@@ -37,3 +38,6 @@ static/js/url.js
 # ._* 无用文件
 ._*
 
+.vercel
+# 无用文件
+._*
