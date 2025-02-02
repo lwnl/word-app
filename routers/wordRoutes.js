@@ -1,6 +1,7 @@
 import express from 'express';
 import Word from '../models/Word.js';  
 import { authenticateToken } from '../middlewares/auth.js';  // 引入身份验证中间件
+import { ObjectId } from 'mongodb'; 
 
 const wordRouter = express.Router();
 
@@ -27,9 +28,10 @@ wordRouter.post('/api/words', async (req, res) => {
 });
 
 // Get all words
-wordRouter.get('/api/words', async (req, res) => {
+wordRouter.get('/api/words', authenticateToken, async (req, res) => {
+  const {username} = req.user
   try {
-    const words = await Word.find();
+    const words = await Word.find({username});
     res.status(200).json(words);
   } catch (error) {
     console.error('Error fetching words:', error);
@@ -64,14 +66,15 @@ wordRouter.patch('/api/words/:id', authenticateToken, async (req, res) => {
 // Delete a word (DELETE)
 wordRouter.delete('/api/words/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
-  console.log('id:', id)
   try {
-    const result = await Word.deleteOne({ _id: id, username: req.user.username });
-
+    const result = await Word.deleteOne({ _id: id });
+    console.log('result is:', result)
     if (result.deletedCount === 0) {
       return res.status(404).send('Word not found');
     } else {
-      res.status(204).send('Successfully deleted');  // Successfully deleted
+      const message = 'Successfully deleted'
+      console.log(message)
+      res.status(204).send(message);  // Successfully deleted
     }
   } catch (error) {
     console.error('Error deleting word:', error);
