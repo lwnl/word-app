@@ -383,7 +383,7 @@ class WordApp {
             return;
         }
 
-        // 从 API 获取该用户名下的所有单词
+        // 明确用户是否处于登录状态
         if (this.words.length === 0) {
             fetch(`/api/words?username=${this.username}`, {
                 credentials: 'include' // 确保包含 httpOnly cookie
@@ -521,16 +521,20 @@ class WordApp {
             // Send DELETE request to the server
             const response = await fetch(`/api/words/${id}`, {
                 method: 'DELETE',
-                credentials: 'include' // 确保包含 httpOnly cookie
+                credentials: 'include' // Ensure httpOnly cookie is sent
             });
-
+    
             if (response.status === 204) {
                 // Fetch the updated list of words from the server
                 await this.fetchWords();
-                // Get remaining words of the current category
+                // Remove the deleted word from the list
                 liElement.remove();
-            } else {
-                console.error('Failed to delete word');
+            } else if (response.status === 401) {
+                // Ensure we handle 401 error properly
+                const data = await response.json(); // Parse the JSON response body
+                console.error('Authentication error:', data.error); 
+                alert('Session expired, please log in again.'); 
+                window.location.href = '/login.html'; // Redirect to login page
             }
         } catch (error) {
             console.error('Error deleting word:', error);

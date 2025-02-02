@@ -64,14 +64,14 @@ wordRouter.patch('/api/words/:id', authenticateToken, async (req, res) => {
 // Delete a word (DELETE)
 wordRouter.delete('/api/words/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
-  
+  console.log('id:', id)
   try {
     const result = await Word.deleteOne({ _id: id, username: req.user.username });
 
     if (result.deletedCount === 0) {
       return res.status(404).send('Word not found');
     } else {
-      res.status(204).send();  // Successfully deleted
+      res.status(204).send('Successfully deleted');  // Successfully deleted
     }
   } catch (error) {
     console.error('Error deleting word:', error);

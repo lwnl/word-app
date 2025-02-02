@@ -24,12 +24,17 @@ function authenticateToken(req, res, next) {
   // Extract token from cookie
   const token = req.cookies.token;
 
-  if (token == null) return res.redirect('/login.html'); // If no token, return 401 status
+  // If there is no token or the token is invalid, return 401
+  if (!token) {
+    return res.status(401).json({ error: 'No valid token' });
+  }
 
   jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.sendStatus(403); // If token is invalid, return 403 status
-    req.user = user; // Attach decoded user information to the request object
-    next(); // Proceed to the next middleware or route handler
+    if (err) {
+      return res.status(401).json({ error: 'No valid token' }); // ✅ Return 401 and "No valid token" for all cases
+    }
+    req.user = user; // If verification succeeds, attach user information to the request object
+    next(); // Proceed to the next middleware
   });
 }
 
