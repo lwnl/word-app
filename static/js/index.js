@@ -78,7 +78,7 @@ class WordApp {
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange(method).length;
+            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
         } catch (error) {
             console.error('Error fetching words:', error);
         }
