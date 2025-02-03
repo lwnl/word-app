@@ -6,24 +6,23 @@ import { ObjectId } from 'mongodb';
 const wordRouter = express.Router();
 
 // Add a word
-wordRouter.post('/api/words', async (req, res) => {
-  const { matherLanguage, german, categoryAdd, username, review } = req.body;
+wordRouter.post('/api/words', authenticateToken, async (req, res) => {
+  const { motherLanguage, german, categoryAdd } = req.body;
+  const { username } = req.user;
 
   try {
-    const newWord = new Word({
-      matherLanguage,
-      german,
-      categoryAdd,
-      username,
-      review,
-    });
+    const isDuplicate = await Word.findOne({ motherLanguage, german });
+    if (isDuplicate) {
+      return res.status(400).json({ message: 'Word already exists!' });
+    }
+
+    const newWord = new Word({ motherLanguage, german, categoryAdd, username });
 
     await newWord.save();
-
     res.status(201).json({ message: 'Word added successfully', word: newWord });
-  } catch (error) {
-    console.error('Error adding word:', error);
-    res.status(500).json({ error: 'Failed to add word' });
+  } catch (dbError) {
+    console.error('Database error:', dbError);
+    res.status(500).json({ error: 'Database error while saving word' });
   }
 });
 

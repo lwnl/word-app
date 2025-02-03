@@ -31,27 +31,15 @@ userRouter.post('/api/register', async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create JWT token
-    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
-
     // Create a new user and save it to the database
     const newUser = new User({
       username,
       password: hashedPassword,
-      token,
     });
 
     await newUser.save();
 
-    // Set token as an HTTP-only cookie
-    res.cookie('token', token, {
-      httpOnly: true,  // Ensures the cookie cannot be accessed by JavaScript
-      secure: true,  // Use HTTPS in production
-      sameSite: 'Strict',
-      maxAge: 3600000, // 1 hour validity
-    });
-
-    res.status(201).json({ message: 'User registered successfully', token });
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
