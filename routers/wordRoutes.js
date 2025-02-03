@@ -15,9 +15,7 @@ wordRouter.post('/api/words', authenticateToken, async (req, res) => {
     if (isDuplicate) {
       return res.status(400).json({ message: 'Word already exists!' });
     }
-    console.log(username)
     const newWord = await Word.create({ motherLanguage, german, categoryAdd, username });
-    console.log('newWord is', newWord)
     res.status(201).json({ message: 'Word added successfully', word: newWord });
   } catch (dbError) {
     console.error('Database error:', dbError);
@@ -28,10 +26,8 @@ wordRouter.post('/api/words', authenticateToken, async (req, res) => {
 // Get all words
 wordRouter.get('/api/words', authenticateToken, async (req, res) => {
   const {username} = req.user
-  console.log('username is:', username)
   try {
     const words = await Word.find({username});
-    console.log(words.length)
     console.log(words)
     res.status(200).json(words);
   } catch (error) {
@@ -44,8 +40,6 @@ wordRouter.get('/api/words', authenticateToken, async (req, res) => {
 wordRouter.patch('/api/words/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
   const updatedFields = req.body;
-  console.log('Updating word:', { id, updatedFields });  // Add debug log
-
   try {
     const result = await Word.updateOne(
       { _id: id, username: req.user.username },
@@ -69,7 +63,6 @@ wordRouter.delete('/api/words/:id', authenticateToken, async (req, res) => {
   const id = req.params.id;
   try {
     const result = await Word.deleteOne({ _id: id });
-    console.log('result is:', result)
     if (result.deletedCount === 0) {
       return res.status(404).send('Word not found');
     } else {
