@@ -41,7 +41,7 @@ functions in WordApp class:
 - handleCategoryChange: Handle category selection and update the displayed words
 - addWord: Add a new word to the server and update the list of words
 - displayWords: Display the list of words based on the current display settings
-- toggleMatherLanguage: Toggle the visibility of matherLanguage words
+- togglemotherLanguage: Toggle the visibility of motherLanguage words
 - toggleGerman: Toggle the visibility of German words
 - handleFormSubmit: Handle form submission to display a random set of words
 - displaySearchResults: Display search results
@@ -62,7 +62,7 @@ class WordApp {
         this.selectedIndex = -1;
         this.suggestions = [];
         this.currentCategory = 'all'; // Initialize the current category. An value must be given!
-        this.showMatherLanguageWords = true;
+        this.showmotherLanguageWords = true;
         this.showGermanWords = false;
         this.noHoverActive = false; // 用于判断是否使用键盘选择
         this.numberOfWords = document.getElementById('numberOfWords');
@@ -89,7 +89,7 @@ class WordApp {
         // Add event listeners
         this.mainCategory.addEventListener('change', () => this.handleCategoryChange('change'));
         this.subCategory.addEventListener('change', () => this.handleCategoryChange('change'));
-        document.getElementById('btnmatherLanguage').addEventListener('click', () => this.toggleMatherLanguage());
+        document.getElementById('btnmotherLanguage').addEventListener('click', () => this.togglemotherLanguage());
         document.getElementById('btnGerman').addEventListener('click', () => this.toggleGerman());
         document.getElementById('addWordButton').addEventListener('click', () => this.addWord());
         document.getElementById('randomWordsForm').addEventListener('submit', (event) => this.handleFormSubmit(event));
@@ -189,12 +189,12 @@ class WordApp {
 
     // Add a new word to the server and update the list of words
     async addWord() {
-        let matherLanguage = document.getElementById('matherLanguage').value; // Get the matherLanguage word
+        let motherLanguage = document.getElementById('motherLanguage').value; // Get the motherLanguage word
         let german = document.getElementById('german').value; // Get the German word
         let categoryAdd = document.getElementById('categoryAdd').value; // Get the category
 
         // Validate input fields
-        if (!matherLanguage || !german || !categoryAdd) {
+        if (!motherLanguage || !german || !categoryAdd) {
             alert('Missing required fields');
             return;
         }
@@ -205,7 +205,7 @@ class WordApp {
                 credentials: 'include' // 确保包含 httpOnly cookie
             });
             const words = await fetchResponse.json();
-            const duplicate = words.find(word => word.matherLanguage === matherLanguage && word.german === german);
+            const duplicate = words.find(word => word.motherLanguage === motherLanguage && word.german === german);
             if (duplicate) {
                 alert('The word already exists');
                 return;
@@ -217,14 +217,14 @@ class WordApp {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ matherLanguage, german, categoryAdd }),
+                body: JSON.stringify({ motherLanguage, german, categoryAdd }),
                 credentials: 'include' // 确保包含 httpOnly cookie
             });
 
             if (response.ok) {
                 alert('Word added successfully');
                 // Clear the input fields after successfully adding the word
-                document.getElementById('matherLanguage').value = '';
+                document.getElementById('motherLanguage').value = '';
                 document.getElementById('german').value = '';
                 this.fetchWords(); // Refresh the word list
             } else {
@@ -246,10 +246,10 @@ class WordApp {
         wordsToDisplay.forEach(word => {
             const li = document.createElement('li');
             // Display words based on current settings
-            if (this.showMatherLanguageWords && this.showGermanWords) {
-                li.textContent = `${word.matherLanguage} - ${word.german}`;
-            } else if (this.showMatherLanguageWords) {
-                li.textContent = word.matherLanguage;
+            if (this.showmotherLanguageWords && this.showGermanWords) {
+                li.textContent = `${word.motherLanguage} - ${word.german}`;
+            } else if (this.showmotherLanguageWords) {
+                li.textContent = word.motherLanguage;
             } else if (this.showGermanWords) {
                 li.textContent = word.german;
             } else {
@@ -285,10 +285,10 @@ class WordApp {
         });
     }
 
-    // Toggle the visibility of matherLanguage words
-    toggleMatherLanguage() {
-        this.showMatherLanguageWords = !this.showMatherLanguageWords;
-        document.getElementById('btnmatherLanguage').textContent = this.showMatherLanguageWords ? 'Hide matherLanguage' : 'Show matherLanguage';
+    // Toggle the visibility of motherLanguage words
+    togglemotherLanguage() {
+        this.showmotherLanguageWords = !this.showmotherLanguageWords;
+        document.getElementById('btnmotherLanguage').textContent = this.showmotherLanguageWords ? 'Hide motherLanguage' : 'Show motherLanguage';
         this.displayWords(this.shuffledWords); // Refresh displayed words
     }
 
@@ -335,7 +335,7 @@ class WordApp {
         resultsContainer.innerHTML = ''; // 清空结果容器
 
         const listItem = document.createElement('li');
-        listItem.innerText = `${word.matherLanguage} - ${word.german}`;
+        listItem.innerText = `${word.motherLanguage} - ${word.german}`;
 
         // 添加 category 选择框
         const categorySelect = document.createElement('select');
@@ -392,12 +392,12 @@ class WordApp {
                 .catch(error => console.error('Error fetching suggestions:', error));
         }
         this.suggestions = this.words.filter(word =>
-            word.matherLanguage.toLowerCase().startsWith(query.toLowerCase()) ||
+            word.motherLanguage.toLowerCase().startsWith(query.toLowerCase()) ||
             word.german.toLowerCase().startsWith(query.toLowerCase())
         );
         if (this.suggestions.length === 0) {
             this.suggestions = this.words.filter(word =>
-                word.matherLanguage.toLowerCase().includes(query.toLowerCase()) ||
+                word.motherLanguage.toLowerCase().includes(query.toLowerCase()) ||
                 word.german.toLowerCase().includes(query.toLowerCase())
             );
         }
@@ -405,7 +405,7 @@ class WordApp {
         this.selectedIndex = -1;
         this.suggestions.forEach((word, index) => {
             const suggestionItem = document.createElement('div');
-            suggestionItem.innerText = `${word.german} - ${word.matherLanguage}`;
+            suggestionItem.innerText = `${word.german} - ${word.motherLanguage}`;
             suggestionItem.classList.add('suggestion-item');
             suggestionItem.addEventListener('click', () => {
                 this.displaySearchResults(word); // 使用选择的单词进行搜索

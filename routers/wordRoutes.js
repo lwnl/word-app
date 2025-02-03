@@ -7,11 +7,11 @@ const wordRouter = express.Router();
 
 // Add a word
 wordRouter.post('/api/words', async (req, res) => {
-  const { matherLanguage, german, categoryAdd, username, review } = req.body;
+  const { motherLanguage, german, categoryAdd, username, review } = req.body;
 
   try {
     const newWord = new Word({
-      matherLanguage,
+      motherLanguage,
       german,
       categoryAdd,
       username,
