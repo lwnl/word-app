@@ -78,7 +78,8 @@ class WordApp {
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange(method).length;
+            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
+            console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
         }
@@ -178,9 +179,7 @@ class WordApp {
 
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
-
-        // Update the number of words display
-        this.numberOfWords.innerHTML = categoryWords.length;
+        
         if (method === 'change' || method === 'submit') {
             this.wordList.innerHTML = ''
         }
@@ -189,49 +188,33 @@ class WordApp {
 
     // Add a new word to the server and update the list of words
     async addWord() {
-        let motherLanguage = document.getElementById('motherLanguage').value; // Get the motherLanguage word
-        let german = document.getElementById('german').value; // Get the German word
-        let categoryAdd = document.getElementById('categoryAdd').value; // Get the category
-
-        // Validate input fields
+        let motherLanguage = document.getElementById('motherLanguage').value.trim();
+        let german = document.getElementById('german').value.trim();
+        let categoryAdd = document.getElementById('categoryAdd').value.trim();
+    
         if (!motherLanguage || !german || !categoryAdd) {
             alert('Missing required fields');
             return;
         }
-
+    
         try {
-            // Check if the word already exists
-            const fetchResponse = await fetch(`/api/words`, {
-                credentials: 'include' // 确保包含 httpOnly cookie
-            });
-            const words = await fetchResponse.json();
-            const duplicate = words.find(word => word.motherLanguage === motherLanguage && word.german === german);
-            if (duplicate) {
-                alert('The word already exists');
-                return;
-            }
-
-            // Add the new word to the server
             const response = await fetch(`/api/words`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ motherLanguage, german, categoryAdd }),
-                credentials: 'include' // 确保包含 httpOnly cookie
+                credentials: 'include'
             });
-
-            if (response.ok) {
-                alert('Word added successfully');
-                // Clear the input fields after successfully adding the word
-                document.getElementById('motherLanguage').value = '';
-                document.getElementById('german').value = '';
-                this.fetchWords(); // Refresh the word list
-            } else {
-                const errorData = await response.text(); // 获取文本而不是 JSON
-                console.error('Error adding word:', errorData);
-                alert('Error adding word: ' + errorData);
+    
+            const errorData = await response.json();
+            if (!response.ok) {
+                alert(`Error adding word: ${errorData.message || 'Unknown error'}`);
+                return;
             }
+    
+            alert('Word added successfully');
+            document.getElementById('motherLanguage').value = '';
+            document.getElementById('german').value = '';
+            this.fetchWords();
         } catch (error) {
             console.error('Error adding word:', error);
             alert('Error adding word: ' + error.message);
