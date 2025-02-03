@@ -223,6 +223,7 @@ class WordApp {
 
     // Display the list of words based on the current display settings
     displayWords(wordsToDisplay) {
+        console.log('to display words')
         const wordList = this.wordList;
         wordList.innerHTML = ''; // Clear the existing word list
 
@@ -287,29 +288,29 @@ class WordApp {
         event.preventDefault(); // Prevent default form submission behavior
         const quantityInput = document.getElementById('quantity');
         const quantity = parseInt(quantityInput.value); // Get the desired number of words
-
         // Validate quantity input
         if (isNaN(quantity)) {
             alert('Please enter a valid number.');
             return;
         }
-
+        
         if (quantity <= 0) {
             alert('Please enter a number greater than zero.');
             return;
         }
-
+        
         if (quantity > Number(this.numberOfWords.textContent)) {
             alert(`There are only ${this.numberOfWords.textContent} words available.`);
             return;
         }
-
+        
         // Shuffle words and display a subset
         this.shuffledWords = this.handleCategoryChange('submit').sort(() => 0.5 - Math.random()).slice(0, quantity);
         this.displayWords(this.shuffledWords);
         // Clear the input field after displaying the words
         quantityInput.value = '';
         quantityInput.focus()
+        console.log('quantity is', quantity)
     }
 
 
