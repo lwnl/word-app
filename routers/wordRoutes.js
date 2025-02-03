@@ -11,14 +11,13 @@ wordRouter.post('/api/words', authenticateToken, async (req, res) => {
   const { username } = req.user;
 
   try {
-    const isDuplicate = await Word.findOne({ motherLanguage, german });
+    const isDuplicate = await Word.findOne({ motherLanguage, german, username });
     if (isDuplicate) {
       return res.status(400).json({ message: 'Word already exists!' });
     }
-
-    const newWord = new Word({ motherLanguage, german, categoryAdd, username });
-
-    await newWord.save();
+    console.log(username)
+    const newWord = await Word.create({ motherLanguage, german, categoryAdd, username });
+    console.log('newWord is', newWord)
     res.status(201).json({ message: 'Word added successfully', word: newWord });
   } catch (dbError) {
     console.error('Database error:', dbError);
@@ -29,8 +28,11 @@ wordRouter.post('/api/words', authenticateToken, async (req, res) => {
 // Get all words
 wordRouter.get('/api/words', authenticateToken, async (req, res) => {
   const {username} = req.user
+  console.log('username is:', username)
   try {
     const words = await Word.find({username});
+    console.log(words.length)
+    console.log(words)
     res.status(200).json(words);
   } catch (error) {
     console.error('Error fetching words:', error);

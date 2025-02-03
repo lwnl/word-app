@@ -17,6 +17,10 @@ const wordSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  username: {
+    type: String,
+    required: true,
+  },
 })
 
 const Word = mongoose.model('Word', wordSchema)

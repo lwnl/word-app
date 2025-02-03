@@ -79,6 +79,7 @@ class WordApp {
             const data = await response.json();
             this.words = data;
             this.numberOfWords.innerHTML = this.handleCategoryChange().length;
+            console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
         }
@@ -178,9 +179,7 @@ class WordApp {
 
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
-
-        // Update the number of words display
-        this.numberOfWords.innerHTML = categoryWords.length;
+        
         if (method === 'change' || method === 'submit') {
             this.wordList.innerHTML = ''
         }
