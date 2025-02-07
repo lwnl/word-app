@@ -78,7 +78,7 @@ class WordApp {
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
+            this.handleCategoryChange()
             console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
@@ -176,13 +176,14 @@ class WordApp {
 
         // Get the filter function for the current category and sub-category
         const filterFunction = filters[this.currentCategory][subCategoryValue]
-
+        console.log('filterFunction is', filterFunction)
         // Filter the words based on the selected filter function
         const categoryWords = this.words.filter(filterFunction);
-        
+        console.log('categoryWords is',categoryWords)
         if (method === 'change' || method === 'submit') {
             this.wordList.innerHTML = ''
         }
+        this.numberOfWords.innerText = categoryWords.length
         return categoryWords;
     }
 
@@ -225,9 +226,11 @@ class WordApp {
     displayWords(wordsToDisplay) {
         console.log('to display words')
         const wordList = this.wordList;
+        console.log('wordsToDisplay is:', wordsToDisplay)
         wordList.innerHTML = ''; // Clear the existing word list
 
         wordsToDisplay.forEach(word => {
+            console.log
             const li = document.createElement('li');
             // Display words based on current settings
             if (this.showmotherLanguageWords && this.showGermanWords) {
