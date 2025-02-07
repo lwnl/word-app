@@ -71,14 +71,14 @@ class WordApp {
         this.subCategory = document.getElementById('subCategory');
     }
 
-    async fetchWords() {
+    async fetchWords(method) {
         try {
             const response = await fetch(`/api/words`, {
                 credentials: 'include', // 确保包含 httpOnly cookie
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange().length;
+            this.numberOfWords.innerHTML = this.handleCategoryChange(method).length;
             console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
