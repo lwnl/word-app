@@ -71,14 +71,14 @@ class WordApp {
         this.subCategory = document.getElementById('subCategory');
     }
 
-    async fetchWords(method) {
+    async fetchWords() {
         try {
             const response = await fetch(`/api/words`, {
                 credentials: 'include', // 确保包含 httpOnly cookie
             });
             const data = await response.json();
             this.words = data;
-            this.numberOfWords.innerHTML = this.handleCategoryChange(method).length;
+            this.handleCategoryChange()
             console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
@@ -183,6 +183,7 @@ class WordApp {
         if (method === 'change' || method === 'submit') {
             this.wordList.innerHTML = ''
         }
+        this.numberOfWords.innerText = categoryWords.length
         return categoryWords;
     }
 
