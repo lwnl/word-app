@@ -28,7 +28,6 @@ wordRouter.get('/api/words', authenticateToken, async (req, res) => {
   const {username} = req.user
   try {
     const words = await Word.find({username});
-    console.log(words)
     res.status(200).json(words);
   } catch (error) {
     console.error('Error fetching words:', error);
