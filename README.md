@@ -32,6 +32,9 @@
 	•	自动更新github变更
 	•	all words 根据单词的状态显示
 	•	After searching, implement the update and edit functionalities. (To be improved)
+	•	登出的时候移除token
+
+
 
 
 

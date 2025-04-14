@@ -71,7 +71,7 @@ userRouter.post('/api/login', async (req, res) => {
     // Set token as an HTTP-only cookie
     res.cookie('token', token, {
       httpOnly: true,  // Ensures the cookie cannot be accessed by JavaScript
-      secure: true,  // Use HTTPS in production
+      secure: false,  // Use HTTPS in production
       sameSite: 'Strict',
       maxAge: 3600000, // 1 hour validity
     });
