@@ -75,14 +75,10 @@ userRouter.post("/api/login", async (req, res) => {
 
     // Set token as an HTTP-only cookie
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: false, // 设置为 false（除非你使用 HTTPS）
-      sameSite: "Lax", // 比 Strict 更宽松，允许从链接跳转、表单提交等场景中带 cookie
-      maxAge: 3600000,
-      // httpOnly: true,  // Ensures the cookie cannot be accessed by JavaScript
-      // secure: true,  // Use HTTPS in production
-      // sameSite: 'Strict',
-      // maxAge: 3600000, // 1 hour validity
+      httpOnly: true,  // Ensures the cookie cannot be accessed by JavaScript
+      secure: true,  // Use HTTPS in production
+      sameSite: 'Strict',
+      maxAge: 3600000, // 1 hour validity
     });
 
     res.status(200).json({ message: "Login successful", token });

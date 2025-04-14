@@ -10,11 +10,6 @@ import { fileURLToPath } from 'url';
 const app = express();
 const PORT = process.env.PORT;
 
-app.use(cors({
-  origin: 'http://localhost:3100', // 比如 'http://localhost:3100' 或你的部署页面
-  credentials: true // 允许携带 cookies
-}));
-
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cookieParser()); // 解析 cookie
