@@ -8,7 +8,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
 
-  if (!token) return res.redirect('login.html')
+  if (!token) return res.redirect('/login.html')
 
   jwt.verify(token, SECRET_KEY, (err, decoded) => {
     if (err) return res.redirect('/login.html')

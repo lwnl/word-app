@@ -1,14 +1,22 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import { fileURLToPath } from 'url';
+import path from 'path';
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import { authenticateToken } from "../middlewares/auth.js";
 dotenv.config();
 
 const userRouter = express.Router();
 const SECRET_KEY = process.env.SECRET_KEY;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+userRouter.get('/index.html', authenticateToken, (req, res) => {
+  res.sendFile(path.join(__dirname, '../static/index.html'))
+});
 
 
 // Registration route

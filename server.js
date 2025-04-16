@@ -13,13 +13,15 @@ const PORT = process.env.PORT;
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cookieParser()); // 解析 cookie
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename); 
-app.use(express.static(path.join(__dirname, 'static'))); 
+
 
 //routers
 app.use(wordsRoutes)
 app.use(userRoutes)
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename); 
+app.use(express.static(path.join(__dirname, 'static'))); 
 
 // DB connection
 dbConnection()
