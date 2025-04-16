@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
                 if (data.token) {
                     window.location.href = `/index.html`; // Redirect to homepage
-                    localStorage.setItem('username', username)
                 } else {
                     alert('Login failed: No token returned');
                 }

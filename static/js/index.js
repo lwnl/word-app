@@ -282,7 +282,7 @@ class WordApp {
     // Toggle the visibility of German words
     toggleGerman() {
         this.showGermanWords = !this.showGermanWords;
-        document.getElementById('btnGerman').textContent = this.showGermanWords ? 'Hide German' : 'Show German';
+        document.getElementById('btnGerman').textContent = this.showGermanWords ? 'Hide foreign language' : 'Show foreign language';
         this.displayWords(this.shuffledWords); // Refresh displayed words
     }
 

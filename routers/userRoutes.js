@@ -8,6 +8,9 @@ dotenv.config();
 const userRouter = express.Router();
 const SECRET_KEY = process.env.SECRET_KEY;
 
+
+
+
 // Registration route
 userRouter.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
