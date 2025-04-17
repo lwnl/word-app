@@ -79,7 +79,6 @@ class WordApp {
             const data = await response.json();
             this.words = data;
             this.handleCategoryChange()
-            console.log(this.numberOfWords.innerHTML)
         } catch (error) {
             console.error('Error fetching words:', error);
         }
