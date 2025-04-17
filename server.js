@@ -10,6 +10,9 @@ import { fileURLToPath } from 'url';
 const app = express();
 const PORT = process.env.PORT;
 
+// DB connection
+dbConnection()
+
 // Middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(cookieParser()); // 解析 cookie
@@ -21,10 +24,13 @@ app.use(userRoutes)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename); 
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'static', 'login.html'))
+})
+
 app.use(express.static(path.join(__dirname, 'static'))); 
 
-// DB connection
-dbConnection()
 
 // http version
 app.listen(PORT, () => {
