@@ -5,7 +5,7 @@ import path from 'path';
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import dotenv from "dotenv";
-import { authenticateToken } from "../middlewares/auth.js";
+import { authenticateToken, checkToken } from "../middlewares/auth.js";
 dotenv.config();
 
 const userRouter = express.Router();
@@ -17,6 +17,10 @@ const __dirname = path.dirname(__filename);
 userRouter.get('/index.html', authenticateToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../static/index.html'))
 });
+
+
+// checkToken on loading 
+userRouter.get('/api/checktoken', checkToken)
 
 
 // Registration route
@@ -65,6 +69,8 @@ userRouter.post("/api/register", async (req, res) => {
 
 // Login route
 userRouter.post("/api/login", async (req, res) => {
+
+  // case with username und password sent
   const { username, password } = req.body;
 
   try {
@@ -95,7 +101,6 @@ userRouter.post("/api/login", async (req, res) => {
     res.status(200).json({ 
       message: "Login successful", 
       username: user.username,
-      token,
     });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

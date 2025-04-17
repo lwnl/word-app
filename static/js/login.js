@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginBtn = document.getElementById("loginBtn");
   const registerBtn = document.getElementById("registerBtn");
 
+  //判断浏览器中是否有有效的token
+  checkToken();
   // login event
   loginBtn.addEventListener("click", async () => {
     const username = document.getElementById("username").value;
@@ -24,12 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.token) {
-          localStorage.setItem("username", data.username);
-          window.location.href = `/index.html`; // Redirect to homepage
-        } else {
-          alert("Login failed: No token returned");
-        }
+        localStorage.setItem("username", data.username);
+        window.location.href = `/index.html`; // Redirect to homepage
       } else {
         const errorData = await response.json();
         alert("Login failed: " + errorData.error);
@@ -73,4 +71,25 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Registration error: " + error.message);
     }
   });
+
+  async function checkToken() {
+    try {
+      const response = await fetch("/api/checktoken", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("username", data.username);
+        window.location.href = `/index.html`; // Redirect to homepage
+      } else {
+        const errorData = await response.json();
+        console.warn("No token or Invalid token:", errorData.error);
+        return;
+      }
+    } catch (error) {
+      console.error("checking token failed", error);
+    }
+  }
 });
