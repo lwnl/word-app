@@ -92,7 +92,11 @@ userRouter.post("/api/login", async (req, res) => {
       maxAge: 3600000, // 1 hour validity
     });
 
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ 
+      message: "Login successful", 
+      username: user.username,
+      token,
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
